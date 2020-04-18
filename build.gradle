@@ -1,0 +1,85 @@
+import kr.entree.spigradle.attribute.*
+import kr.entree.spigradle.kotlin.*
+
+plugins {
+    id 'java'
+    id "org.jetbrains.kotlin.jvm" version "1.3.72"
+    id("kr.entree.spigradle") version '1.2.4'
+}
+
+group 'com.dumbdogdiner'
+version '1.0.0'
+
+repositories {
+    mavenCentral()
+    maven {
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+
+        content {
+            includeGroup 'org.bukkit'
+            includeGroup 'org.spigotmc'
+        }
+    }
+    maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
+    maven { url = 'https://oss.sonatype.org/content/repositories/central' }
+    jitpack()
+}
+
+dependencies {
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    compileOnly(paper("1.15.2"))
+    compileOnly(vault())
+    compile group: 'com.zaxxer', name: 'HikariCP', version: '2.3.2'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.11"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+spigot {
+    authors = List.of("Vlad Frangu")
+    softDepends = List.of("Vault")
+    apiVersion = "1.15"
+    load = Load.STARTUP
+    loadBefore = List.of("ItemFrameShops")
+    commands {
+        create("balance") {
+            aliases = List.of("gbal", "gmoney", "bal")
+            description = "Shows your balances"
+            usage = "/gbalance (account)"
+        }
+        create("baltop") {
+            aliases = List.of("gmoneytop", "gecotop", "gtop", "gbaltop")
+            description = "Shows the top balances of the server"
+            usage = "/baltop (currency) (page)"
+        }
+        create("currency") {
+            aliases = List.of("gcurr", "gcurrency", "currencies")
+            description = "Manage the currencies."
+            usage = "/gcurrencies"
+        }
+        create("economy") {
+            aliases = List.of("geconomy", "eco", "geco", "gemseconomy")
+            description = "Give, set or take currency."
+            usage = "/eco <set|take|give> <account> <amount> (currency)"
+        }
+        create("pay") {
+            aliases = List.of("gpay")
+            description = "Pays another account"
+            usage = "/pay <account> <amount> (currency)"
+        }
+        create("cheque") {
+            aliases = List.of("note", "banknote")
+            description = "Write or Redeem a cheque"
+            usage = "/cheque"
+        }
+        create("exchange") {
+            aliases = List.of("gex", "ex")
+            description = "Exchange currencies"
+            usage = "/exchange"
+        }
+    }
+}
