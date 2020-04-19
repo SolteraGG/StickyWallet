@@ -36,7 +36,7 @@ class Configuration(private val plugin: StickyWallet) {
         config.addDefault("cheque.material", Material.PAPER.toString())
         config.addDefault("cheque.name", "&aBank Note")
         config.addDefault("cheque.lore", listOf("&7Worth: {value}.", "&7&oWritten by {player}"))
-        config.addDefault("cheque.console_name", "Console")
+        config.addDefault("cheque.console_name", "The Master Themselves")
 
         config.addDefault(path + "prefix", "&2&lDDD Pawllet> ");
         config.addDefault(path + "nopermission", "&7You don't have permission to do this.");
