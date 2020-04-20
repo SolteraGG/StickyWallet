@@ -1,5 +1,4 @@
 import kr.entree.spigradle.attribute.*
-import kr.entree.spigradle.kotlin.*
 
 plugins {
     id 'java'
@@ -26,17 +25,22 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     compileOnly(paper("1.15.2"))
     compileOnly(vault())
     compile group: 'com.zaxxer', name: 'HikariCP', version: '2.3.2'
 }
 
 compileKotlin {
-    kotlinOptions.jvmTarget = "1.11"
+    kotlinOptions.jvmTarget = "1.8"
 }
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+jar {
+    manifest { attributes 'Main-Class': 'StickyWallet.StickyPluginKt' }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 }
 
 spigot {
@@ -49,7 +53,7 @@ spigot {
         create("balance") {
             aliases = List.of("gbal", "gmoney", "bal")
             description = "Shows your balances"
-            usage = "/gbalance (account)"
+            usage = "/gbalance [player]"
         }
         create("baltop") {
             aliases = List.of("gmoneytop", "gecotop", "gtop", "gbaltop")
@@ -59,22 +63,22 @@ spigot {
         create("currency") {
             aliases = List.of("gcurr", "gcurrency", "currencies")
             description = "Manage the currencies."
-            usage = "/gcurrencies"
+            usage = "/gcurrencies <backend|color|colorlist|convert|create|decimals|default|delete|list|payable|setrate|startbal|view>"
         }
         create("economy") {
             aliases = List.of("geconomy", "eco", "geco", "gemseconomy")
             description = "Give, set or take currency."
-            usage = "/eco <set|take|give> <account> <amount> (currency)"
+            usage = "/eco <set|take|give> <account> <amount> [currency]"
         }
         create("pay") {
             aliases = List.of("gpay")
             description = "Pays another account"
-            usage = "/pay <account> <amount> (currency)"
+            usage = "/pay <account> <amount> [currency]"
         }
-        create("cheque") {
+        create("check") {
             aliases = List.of("note", "banknote")
-            description = "Write or Redeem a cheque"
-            usage = "/cheque"
+            description = "Write or Redeem a check"
+            usage = "/check <redeem|write> [amount] [currency]"
         }
         create("exchange") {
             aliases = List.of("gex", "ex")
