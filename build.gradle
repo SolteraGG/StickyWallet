@@ -58,7 +58,7 @@ spigot {
         create("baltop") {
             aliases = List.of("gmoneytop", "gecotop", "gtop", "gbaltop")
             description = "Shows the top balances of the server"
-            usage = "/baltop (currency) (page)"
+            usage = "/baltop [currency] [page]"
         }
         create("currency") {
             aliases = List.of("gcurr", "gcurrency", "currencies")
@@ -83,7 +83,7 @@ spigot {
         create("exchange") {
             aliases = List.of("gex", "ex")
             description = "Exchange currencies"
-            usage = "/exchange"
+            usage = "/exchange [player] <old currency> <amount> <new currency> [receive amount]"
         }
     }
 }

@@ -14,7 +14,6 @@ import stickyWallet.utils.ServerUtils
 import stickyWallet.utils.StringUtils
 import java.io.File
 
-
 class CurrencyCommand : TabExecutor {
 
     private val plugin = StickyPlugin.instance
@@ -252,7 +251,7 @@ class CurrencyCommand : TabExecutor {
                     plugin.dataStore.deleteCurrency(currency)
                     plugin.currencyManager.currencies.remove(currency)
                     if (plugin.currencyManager.currencies.size == 1) {
-                        val newDefault = plugin.currencyManager.currencies.first()!!
+                        val newDefault = plugin.currencyManager.currencies.first()
                         newDefault.defaultCurrency = true
                         plugin.dataStore.saveCurrency(newDefault)
                     }
@@ -369,24 +368,20 @@ class CurrencyCommand : TabExecutor {
             sender.sendMessage(L.unknownCurrency)
             return
         }
-        val newAmount = if (currency.decimalSupported) {
-            try {
-                val temp = newStartString.toDouble()
-                if (temp < 0.0) throw NumberFormatException()
-                temp
-            } catch (ex: NumberFormatException) {
-                sender.sendMessage(L.invalidAmount)
-                -111.111
+
+        val newAmount = try {
+            val temp = if (currency.decimalSupported) {
+                newStartString.toDouble()
+            } else {
+                newStartString.toInt()
             }
-        } else {
-            try {
-                val temp = newStartString.toInt()
-                if (temp < 0.0) throw NumberFormatException()
-                temp.toDouble()
-            } catch (ex: NumberFormatException) {
-                sender.sendMessage(L.invalidAmount)
-                -111.111
-            }
+            if (
+                    (temp is Double && temp < 0.0) || (temp is Int && temp < 0)
+            ) throw NumberFormatException()
+            temp.toDouble()
+        } catch (ex: NumberFormatException) {
+            sender.sendMessage(L.invalidAmount)
+            -111.111
         }
 
         if (newAmount == -111.111) return

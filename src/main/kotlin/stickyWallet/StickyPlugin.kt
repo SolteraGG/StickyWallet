@@ -1,17 +1,16 @@
+import org.bukkit.ChatColor
+import org.bukkit.plugin.java.JavaPlugin
 import stickyWallet.accounts.AccountManager
 import stickyWallet.check.CheckManager
-import org.bukkit.plugin.java.JavaPlugin
-
+import stickyWallet.commands.BalanceCommand
+import stickyWallet.commands.CheckCommand
+import stickyWallet.commands.CurrencyCommand
 import stickyWallet.currency.CurrencyManager
 import stickyWallet.data.DataStore
 import stickyWallet.data.DataStoreManager
 import stickyWallet.files.Configuration
-import stickyWallet.nbt.NMSManager
-import org.bukkit.ChatColor
-import stickyWallet.commands.BalanceCommand
-import stickyWallet.commands.CheckCommand
-import stickyWallet.commands.CurrencyCommand
 import stickyWallet.listeners.StickyListener
+import stickyWallet.nbt.NMSManager
 import stickyWallet.utils.EconomyLogger
 import stickyWallet.utils.ServerUtils
 import stickyWallet.vault.VaultManager
@@ -27,11 +26,11 @@ class StickyPlugin : JavaPlugin() {
     lateinit var nmsManager: NMSManager
     lateinit var economyLogger: EconomyLogger
 
-    var debug = false;
+    var debug = false
     private var vaultSupport = false
     var loggingTransactions = false
 
-    var isDisabling = false;
+    var isDisabling = false
 
     override fun onLoad() {
         logger.info("Loading $name")
@@ -61,7 +60,7 @@ class StickyPlugin : JavaPlugin() {
 
         val balCommand = getCommand("balance")!!
         balCommand.setExecutor(BalanceCommand())
-        balCommand.usage = "[player name]"
+        balCommand.usage = "[player]"
 
         val checkCommand = getCommand("check")!!
         checkCommand.setExecutor(CheckCommand())
