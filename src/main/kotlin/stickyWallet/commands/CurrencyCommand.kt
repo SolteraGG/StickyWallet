@@ -136,11 +136,13 @@ class CurrencyCommand : TabExecutor {
                     sender.sendMessage("${L.prefix}§7The color for §f${currency.plural} §7was set to: $color${color.name}")
                 }
                 "colorlist" -> {
-                    possibleColors.map {
-                        if (it == "reset") {
-                            "${ChatColor.WHITE}§l${it.capitalize()} §7= $it"
+                    possibleColors.map { color ->
+                        if (color == "reset") {
+                            "${ChatColor.WHITE}§l${color.capitalize()} §7= $color"
                         } else {
-                            "${ChatColor.valueOf(it.toUpperCase())}§l${it.capitalize()} §7= $it"
+                            "${ChatColor.valueOf(color.toUpperCase())}§l${color.split("_").joinToString(" ") {
+                                it.capitalize()
+                            }} §7= $color"
                         }
                     }
                         .forEach {
