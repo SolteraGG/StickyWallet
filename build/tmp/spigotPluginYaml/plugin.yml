@@ -1,6 +1,6 @@
 main: StickyPlugin
 name: StickyWallet
-version: 1.0.0
+version: 1.0.1
 authors: [Vlad Frangu]
 api-version: '1.15'
 load: STARTUP

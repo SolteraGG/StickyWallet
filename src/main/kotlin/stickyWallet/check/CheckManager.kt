@@ -1,14 +1,13 @@
 package stickyWallet.check
 
 import StickyPlugin
-import stickyWallet.currency.Currency
-import stickyWallet.nbt.NBTItem
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
+import stickyWallet.currency.Currency
+import stickyWallet.nbt.NBTItem
 import stickyWallet.utils.StringUtils
-import java.lang.Exception
 
 class CheckManager(private val plugin: StickyPlugin) {
 
@@ -89,7 +88,7 @@ class CheckManager(private val plugin: StickyPlugin) {
         }
     }
 
-    fun getCurrencyForCheque(itemStack: NBTItem): Currency? {
+    fun getCurrencyForCheck(itemStack: NBTItem): Currency? {
         return try {
             when {
                 itemStack.getString(nbtValue) == null -> this.plugin.currencyManager.getDefaultCurrency()

@@ -1,5 +1,6 @@
 package stickyWallet.commands
 
+import StickyPlugin
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
@@ -105,7 +106,7 @@ class BalanceTopCommand : TabExecutor {
             currencyKeys.addAll(plugin.currencyManager.currencies.map { it.plural })
 
             return currencyKeys.filter {
-                it.startsWith(args[3], true)
+                it.startsWith(args[0], true)
             }.toMutableList()
         }
 

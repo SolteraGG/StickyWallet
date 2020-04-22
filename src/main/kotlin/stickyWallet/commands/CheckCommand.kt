@@ -1,10 +1,12 @@
 package stickyWallet.commands
 
+import StickyPlugin
 import org.bukkit.Material
-import org.bukkit.command.*
+import org.bukkit.command.Command
+import org.bukkit.command.CommandSender
+import org.bukkit.command.TabExecutor
 import org.bukkit.entity.Player
 import stickyWallet.check.CheckManager
-import stickyWallet.currency.Currency
 import stickyWallet.files.L
 import stickyWallet.nbt.NBTItem
 import stickyWallet.utils.Permissions
@@ -66,7 +68,7 @@ class CheckCommand : TabExecutor {
 
                 val amount = checkValue!!.toDouble()
                 val userAccount = plugin.accountManager.getAccount(sender)
-                val currency = plugin.checkManager.getCurrencyForCheque(item)
+                val currency = plugin.checkManager.getCurrencyForCheck(item)
 
                 // Sanity checks
                 if (userAccount == null) {
