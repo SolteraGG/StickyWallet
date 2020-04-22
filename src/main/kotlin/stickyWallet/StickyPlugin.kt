@@ -1,10 +1,9 @@
 import org.bukkit.ChatColor
 import org.bukkit.plugin.java.JavaPlugin
 import stickyWallet.accounts.AccountManager
+import stickyWallet.bungee.UpdateForwarder
 import stickyWallet.check.CheckManager
-import stickyWallet.commands.BalanceCommand
-import stickyWallet.commands.CheckCommand
-import stickyWallet.commands.CurrencyCommand
+import stickyWallet.commands.*
 import stickyWallet.currency.CurrencyManager
 import stickyWallet.data.DataStore
 import stickyWallet.data.DataStoreManager
@@ -14,6 +13,7 @@ import stickyWallet.nbt.NMSManager
 import stickyWallet.utils.EconomyLogger
 import stickyWallet.utils.ServerUtils
 import stickyWallet.vault.VaultManager
+import java.lang.Exception
 
 class StickyPlugin : JavaPlugin() {
 
@@ -25,6 +25,7 @@ class StickyPlugin : JavaPlugin() {
     private lateinit var vaultManager: VaultManager
     lateinit var nmsManager: NMSManager
     lateinit var economyLogger: EconomyLogger
+    lateinit var updateForwarder: UpdateForwarder
 
     var debug = false
     private var vaultSupport = false
@@ -51,6 +52,7 @@ class StickyPlugin : JavaPlugin() {
         currencyManager = CurrencyManager(this)
         checkManager = CheckManager(this)
         economyLogger = EconomyLogger(this)
+        updateForwarder = UpdateForwarder(this)
 
         dataStoreManager = DataStoreManager()
 
@@ -70,14 +72,29 @@ class StickyPlugin : JavaPlugin() {
         currencyCommand.setExecutor(CurrencyCommand())
         currencyCommand.usage = "<backend|color|colorlist|convert|create|decimals|default|delete|list|payable|setrate|startbal|view>"
 
+        val economyCommand = getCommand("economy")!!
+        economyCommand.setExecutor(EconomyCommand())
+        economyCommand.usage = "<add|give|remove|set|take> <account> <amount> [currency]"
+
+        val payCommand = getCommand("pay")!!
+        payCommand.setExecutor(PayCommand())
+        payCommand.usage = "<account> <amount> [currency]"
+
+        val balTopCommand = getCommand("baltop")!!
+        balTopCommand.setExecutor(BalanceTopCommand())
+        balTopCommand.usage = "[currency] [page]"
+
         if (vaultSupport) {
             vaultManager = VaultManager(this)
             vaultManager.hook()
         } else {
-            ServerUtils.log("Vault linking has been enabled")
+            ServerUtils.log("Vault linking has been disabled")
         }
 
         if (loggingTransactions) economyLogger.save()
+
+        server.messenger.registerOutgoingPluginChannel(this, "BungeeCord")
+        server.messenger.registerIncomingPluginChannel(this, "BungeeCord", updateForwarder)
     }
 
     override fun onDisable() {
@@ -85,7 +102,11 @@ class StickyPlugin : JavaPlugin() {
 
         if (vaultSupport) vaultManager.unhook()
 
-        dataStore.close()
+        try {
+            dataStore.close()
+        } catch (_: Exception) {
+            // Ignore
+        }
     }
 
     fun initializeDataStore(type: String?, fetch: Boolean) {

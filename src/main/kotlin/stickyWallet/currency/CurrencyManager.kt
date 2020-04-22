@@ -26,7 +26,7 @@ class CurrencyManager(val plugin: StickyPlugin) {
         if (currencies.isEmpty()) currency.defaultCurrency = true
 
         this.add(currency)
-         plugin.dataStore.saveCurrency(currency)
+        plugin.dataStore.saveCurrency(currency)
     }
 
     fun add(currency: Currency) {

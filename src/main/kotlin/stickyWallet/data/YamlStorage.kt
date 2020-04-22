@@ -52,7 +52,7 @@ class YamlStorage(private val file: File) : DataStore("yaml", false) {
                 currency.exchangeRate = config.getDouble("$currencyPath.exchange_rate")
 
                 plugin.currencyManager.add(currency)
-                ServerUtils.log("Loaded currency: ${currency.singular}")
+                ServerUtils.log("Loaded currency: ${currency.plural}")
             }
         }
     }

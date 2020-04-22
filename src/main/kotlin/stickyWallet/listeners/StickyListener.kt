@@ -32,8 +32,9 @@ class StickyListener : Listener {
                     plugin.dataStore.createAccount(account)
                 } else {
                     plugin.dataStore.saveAccount(account)
-                    plugin.accountManager.addAccount(account)
                 }
+
+                plugin.accountManager.addAccount(account)
             } else if (account.nickname == null || !account.nickname.equals(player.name)) {
                 val old = account.nickname
                 account.nickname = player.name
@@ -58,7 +59,9 @@ class StickyListener : Listener {
         val player = event.player
 
         StickyPlugin.doSync(Runnable {
-            val account = plugin.accountManager.getAccount(player.uniqueId)
+            val account = plugin.accountManager.accounts.find {
+                it.uuid == player.uniqueId
+            }
             if (account != null) plugin.accountManager.addAccount(account)
         })
 

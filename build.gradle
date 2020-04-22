@@ -28,7 +28,7 @@ dependencies {
     compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     compileOnly(paper("1.15.2"))
     compileOnly(vault())
-    compile group: 'com.zaxxer', name: 'HikariCP', version: '2.3.2'
+    compile group: 'com.zaxxer', name: 'HikariCP', version: '3.4.2'
 }
 
 compileKotlin {
@@ -63,12 +63,12 @@ spigot {
         create("currency") {
             aliases = List.of("gcurr", "gcurrency", "currencies")
             description = "Manage the currencies."
-            usage = "/gcurrencies <backend|color|colorlist|convert|create|decimals|default|delete|list|payable|setrate|startbal|view>"
+            usage = "/gcurrencies <backend|color|colorlist|convert|create|decimals|default|delete|list|payable|setrate|startbal|symbol|view>"
         }
         create("economy") {
             aliases = List.of("geconomy", "eco", "geco", "gemseconomy")
             description = "Give, set or take currency."
-            usage = "/eco <set|take|give> <account> <amount> [currency]"
+            usage = "/eco <add|give|remove|set|take> <account> <amount> [currency]"
         }
         create("pay") {
             aliases = List.of("gpay")
@@ -80,10 +80,10 @@ spigot {
             description = "Write or Redeem a check"
             usage = "/check <redeem|write> [amount] [currency]"
         }
-        create("exchange") {
-            aliases = List.of("gex", "ex")
-            description = "Exchange currencies"
-            usage = "/exchange [player] <old currency> <amount> <new currency> [receive amount]"
-        }
+//        create("exchange") {
+//            aliases = List.of("gex", "ex")
+//            description = "Exchange currencies"
+//            usage = "/exchange [player] <old currency> <amount> <new currency> [receive amount]"
+//        }
     }
 }

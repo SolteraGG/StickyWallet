@@ -30,6 +30,7 @@ class CurrencyCommand : TabExecutor {
         "payable",
         "setrate",
         "startbal",
+        "symbol",
         "view"
     )
 
@@ -41,6 +42,7 @@ class CurrencyCommand : TabExecutor {
         "payable",
         "setrate",
         "startbal",
+        "symbol",
         "view"
     )
 
@@ -373,12 +375,10 @@ class CurrencyCommand : TabExecutor {
             val temp = if (currency.decimalSupported) {
                 newStartString.toDouble()
             } else {
-                newStartString.toInt()
+                newStartString.toInt().toDouble()
             }
-            if (
-                    (temp is Double && temp < 0.0) || (temp is Int && temp < 0)
-            ) throw NumberFormatException()
-            temp.toDouble()
+            if (temp < 0.0) throw NumberFormatException()
+            temp
         } catch (ex: NumberFormatException) {
             sender.sendMessage(L.invalidAmount)
             -111.111

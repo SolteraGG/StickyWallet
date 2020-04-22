@@ -52,7 +52,7 @@ class Configuration(private val plugin: StickyPlugin) {
         config.addDefault(path + "accountMissing", "&7Your account is missing. Please relog into the server.");
         config.addDefault(path + "cannotReceiveMoney", "&a{player}&7 can't receive money.");
         config.addDefault(path + "insufficientFunds", "&7You don't have enough {currencycolor}{currency}&7!");
-        config.addDefault(path + "targetInsufficientFunds", "&e{target} &7don't have enough {currencycolor}{currency}&7!");
+        config.addDefault(path + "targetInsufficientFunds", "&e{target} &7doesn't have enough {currencycolor}{currency}&7!");
         config.addDefault(path + "paid", "&7You were paid {currencycolor}{amount} &7from &a{player}&7.");
         config.addDefault(path + "payer", "&7You paid {currencycolor}{amount} &7to &a{player}&7.");
         config.addDefault(path + "payNoPermission", "&7You don't have permission to pay {currencycolor}{currency}&7.");

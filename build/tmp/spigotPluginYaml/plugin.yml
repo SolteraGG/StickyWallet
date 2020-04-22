@@ -13,7 +13,7 @@ commands:
     aliases: [gbal, gmoney, bal]
   baltop:
     description: Shows the top balances of the server
-    usage: /baltop (currency) (page)
+    usage: /baltop [currency] [page]
     aliases: [gmoneytop, gecotop, gtop, gbaltop]
   check:
     description: Write or Redeem a check
@@ -21,16 +21,12 @@ commands:
     aliases: [note, banknote]
   currency:
     description: Manage the currencies.
-    usage: /gcurrencies <backend|color|colorlist|convert|create|decimals|default|delete|list|payable|setrate|startbal|view>
+    usage: /gcurrencies <backend|color|colorlist|convert|create|decimals|default|delete|list|payable|setrate|startbal|symbol|view>
     aliases: [gcurr, gcurrency, currencies]
   economy:
     description: Give, set or take currency.
-    usage: /eco <set|take|give> <account> <amount> [currency]
+    usage: /eco <add|give|remove|set|take> <account> <amount> [currency]
     aliases: [geconomy, eco, geco, gemseconomy]
-  exchange:
-    description: Exchange currencies
-    usage: /exchange
-    aliases: [gex, ex]
   pay:
     description: Pays another account
     usage: /pay <account> <amount> [currency]

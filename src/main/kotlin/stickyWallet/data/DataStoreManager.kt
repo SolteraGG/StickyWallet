@@ -20,7 +20,13 @@ class DataStoreManager {
     init {
         plugin.economyLogger.log("Loading the yaml and MySQL stores")
         addStore(YamlStorage(File(plugin.dataFolder, "data.yml")))
-        // TODO: OurSQL
+        addStore(MySQLStorage(
+            plugin.config.getString("mysql.host", "localhost")!!,
+            plugin.config.getInt("mysql.port", 3306),
+            plugin.config.getString("mysql.database", "minecraft")!!,
+            plugin.config.getString("mysql.username", "root")!!,
+            plugin.config.getString("mysql.password", "password")!!
+        ))
     }
 
 }
