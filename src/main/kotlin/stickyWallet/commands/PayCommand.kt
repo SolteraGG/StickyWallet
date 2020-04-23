@@ -151,9 +151,11 @@ class PayCommand : TabExecutor {
     ): MutableList<String> {
         // Account
         if (args.size == 1)
-            return plugin.accountManager.accounts.map { it.displayName }
-                .filter { it.startsWith(args[0], true) }
-                .toMutableList()
+            return Bukkit.getOnlinePlayers().map {
+                it.name
+            }.filter {
+                it.startsWith(args[0], true)
+            }.toMutableList()
 
         // ?Currency
         if (args.size == 3) {
