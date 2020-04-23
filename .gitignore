@@ -54,11 +54,4 @@ jspm_packages/
 # dotenv environment variables file
 .env
 
-.vscode
-package-lock.json
-docs
-
-\.vscode/
-\.idea/
-desktop.ini
-dist/
+build/
