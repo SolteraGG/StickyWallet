@@ -64,6 +64,8 @@ class UpdateForwarder(private val plugin: StickyPlugin) : PluginMessageListener 
             ex.printStackTrace()
         }
 
+        out.write(messageBytes.toByteArray())
+
         Bukkit.getOnlinePlayers().firstOrNull()
             ?.sendPluginMessage(plugin, "BungeeCord", out.toByteArray())
     }

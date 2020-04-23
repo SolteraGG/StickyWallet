@@ -26,7 +26,7 @@ class MySQLStorage(
     private val hikariConfig = HikariConfig()
     private lateinit var hikari: HikariDataSource
     private val tablePrefix
-        get() = StickyPlugin.instance.config.getString("mysql.tableprefix", "stickywaller")!!
+        get() = StickyPlugin.instance.config.getString("mysql.tableprefix", "stickywallet")!!
 
     private val cachedTopLists = mutableMapOf<UUID, CachedTopList>()
 
@@ -34,7 +34,7 @@ class MySQLStorage(
         hikariConfig.jdbcUrl = "jdbc:mysql://$host:$port/$database?allowPublicKeyRetrieval=true&useSSL=false"
         hikariConfig.username = username
         hikariConfig.password = password
-        hikariConfig.maximumPoolSize = 32
+        hikariConfig.maximumPoolSize = 12
         hikariConfig.connectionTimeout = 60000
         hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
         hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
@@ -87,6 +87,7 @@ class MySQLStorage(
         hikari = HikariDataSource(hikariConfig)
         val connection = hikari.connection
         setupTables(connection)
+        connection.close()
     }
 
     override fun close() {
@@ -97,33 +98,39 @@ class MySQLStorage(
         try {
             val connection = hikari.connection
 
-            val result = connection.prepareStatement(
-                SQLStatements.SELECT_ALL_CURRENCIES(tablePrefix)
-            ).executeQuery()
+            try {
+                val result = connection.prepareStatement(
+                        SQLStatements.SELECT_ALL_CURRENCIES(tablePrefix)
+                ).executeQuery()
 
-            while (result.next()) {
-                val uuid = UUID.fromString(result.getString(CurrencyParams.uuid))
-                val singular = result.getString(CurrencyParams.singular)
-                val plural = result.getString(CurrencyParams.plural)
-                val defaultBalance = result.getDouble(CurrencyParams.defaultBalance)
-                val symbol = result.getString(CurrencyParams.symbol)
-                val decimalSupported = result.getInt(CurrencyParams.decimalsSupported) == 1
-                val defaultCurrency = result.getInt(CurrencyParams.defaultCurrency) == 1
-                val payable = result.getInt(CurrencyParams.payable) == 1
-                val color = ChatColor.valueOf(result.getString(CurrencyParams.color))
-                val exchangeRate = result.getDouble(CurrencyParams.exchangeRate)
+                while (result.next()) {
+                    val uuid = UUID.fromString(result.getString(CurrencyParams.uuid))
+                    val singular = result.getString(CurrencyParams.singular)
+                    val plural = result.getString(CurrencyParams.plural)
+                    val defaultBalance = result.getDouble(CurrencyParams.defaultBalance)
+                    val symbol = result.getString(CurrencyParams.symbol)
+                    val decimalSupported = result.getInt(CurrencyParams.decimalsSupported) == 1
+                    val defaultCurrency = result.getInt(CurrencyParams.defaultCurrency) == 1
+                    val payable = result.getInt(CurrencyParams.payable) == 1
+                    val color = ChatColor.valueOf(result.getString(CurrencyParams.color))
+                    val exchangeRate = result.getDouble(CurrencyParams.exchangeRate)
 
-                val currency = Currency(uuid, singular, plural)
-                currency.defaultBalance = defaultBalance
-                currency.symbol = symbol
-                currency.decimalSupported = decimalSupported
-                currency.defaultCurrency = defaultCurrency
-                currency.payable = payable
-                currency.color = color
-                currency.exchangeRate = exchangeRate
+                    val currency = Currency(uuid, singular, plural)
+                    currency.defaultBalance = defaultBalance
+                    currency.symbol = symbol
+                    currency.decimalSupported = decimalSupported
+                    currency.defaultCurrency = defaultCurrency
+                    currency.payable = payable
+                    currency.color = color
+                    currency.exchangeRate = exchangeRate
 
-                plugin.currencyManager.add(currency)
-                ServerUtils.log("Loaded currency: ${currency.plural}")
+                    plugin.currencyManager.add(currency)
+                    ServerUtils.log("Loaded currency: ${currency.plural}")
+                }
+            } catch (ex: SQLException) {
+                ex.printStackTrace()
+            } finally {
+                connection.close()
             }
         } catch (ex: SQLException) {
             ex.printStackTrace()
@@ -134,31 +141,37 @@ class MySQLStorage(
         try {
             val connection = hikari.connection
 
-            val statement = connection.prepareStatement(
-                SQLStatements.SELECT_CURRENCY_BY_ID(tablePrefix)
-            )
-            statement.setString(1, currency.uuid.toString())
+            try {
+                val statement = connection.prepareStatement(
+                        SQLStatements.SELECT_CURRENCY_BY_ID(tablePrefix)
+                )
+                statement.setString(1, currency.uuid.toString())
 
-            val result = statement.executeQuery()
+                val result = statement.executeQuery()
 
-            while (result.next()) {
-                val defaultBalance = result.getDouble(CurrencyParams.defaultBalance)
-                val symbol = result.getString(CurrencyParams.symbol)
-                val decimalSupported = result.getInt(CurrencyParams.decimalsSupported) == 1
-                val defaultCurrency = result.getInt(CurrencyParams.defaultCurrency) == 1
-                val payable = result.getInt(CurrencyParams.payable) == 1
-                val color = ChatColor.valueOf(result.getString(CurrencyParams.color))
-                val exchangeRate = result.getDouble(CurrencyParams.exchangeRate)
+                while (result.next()) {
+                    val defaultBalance = result.getDouble(CurrencyParams.defaultBalance)
+                    val symbol = result.getString(CurrencyParams.symbol)
+                    val decimalSupported = result.getInt(CurrencyParams.decimalsSupported) == 1
+                    val defaultCurrency = result.getInt(CurrencyParams.defaultCurrency) == 1
+                    val payable = result.getInt(CurrencyParams.payable) == 1
+                    val color = ChatColor.valueOf(result.getString(CurrencyParams.color))
+                    val exchangeRate = result.getDouble(CurrencyParams.exchangeRate)
 
-                currency.defaultBalance = defaultBalance
-                currency.symbol = symbol
-                currency.decimalSupported = decimalSupported
-                currency.defaultCurrency = defaultCurrency
-                currency.payable = payable
-                currency.color = color
-                currency.exchangeRate = exchangeRate
+                    currency.defaultBalance = defaultBalance
+                    currency.symbol = symbol
+                    currency.decimalSupported = decimalSupported
+                    currency.defaultCurrency = defaultCurrency
+                    currency.payable = payable
+                    currency.color = color
+                    currency.exchangeRate = exchangeRate
 
-                ServerUtils.log("Updated currency: ${currency.plural}")
+                    ServerUtils.log("Updated currency: ${currency.plural}")
+                }
+            } catch (ex: SQLException) {
+                ex.printStackTrace()
+            } finally {
+                connection.close()
             }
         } catch (ex: SQLException) {
             ex.printStackTrace()
@@ -169,20 +182,26 @@ class MySQLStorage(
         try {
             val connection = hikari.connection
 
-            val statement = connection.prepareStatement(
-                SQLStatements.INSERT_CURRENCY(tablePrefix)
-            )
-            statement.setString(1, currency.uuid.toString())
-            statement.setString(2, currency.singular)
-            statement.setString(3, currency.plural)
-            statement.setDouble(4, currency.defaultBalance)
-            statement.setString(5, currency.symbol)
-            statement.setInt(6, if (currency.decimalSupported) 1 else 0)
-            statement.setInt(7, if (currency.defaultCurrency) 1 else 0)
-            statement.setInt(8, if (currency.payable) 1 else 0)
-            statement.setString(9, currency.color.name)
-            statement.setDouble(10, currency.exchangeRate)
-            statement.execute()
+            try {
+                val statement = connection.prepareStatement(
+                        SQLStatements.INSERT_CURRENCY(tablePrefix)
+                )
+                statement.setString(1, currency.uuid.toString())
+                statement.setString(2, currency.singular)
+                statement.setString(3, currency.plural)
+                statement.setDouble(4, currency.defaultBalance)
+                statement.setString(5, currency.symbol)
+                statement.setInt(6, if (currency.decimalSupported) 1 else 0)
+                statement.setInt(7, if (currency.defaultCurrency) 1 else 0)
+                statement.setInt(8, if (currency.payable) 1 else 0)
+                statement.setString(9, currency.color.name)
+                statement.setDouble(10, currency.exchangeRate)
+                statement.execute()
+            } catch (ex: SQLException) {
+                ex.printStackTrace()
+            } finally {
+                connection.close()
+            }
         } catch (ex: SQLException) {
             ex.printStackTrace()
         }
@@ -197,17 +216,23 @@ class MySQLStorage(
         try {
             val connection = hikari.connection
 
-            val currenciesStatement = connection.prepareStatement(
-                SQLStatements.DELETE_CURRENCY_FROM_CURRENCIES(tablePrefix)
-            )
-            currenciesStatement.setString(1, currency.uuid.toString())
-            currenciesStatement.execute()
+            try {
+                val currenciesStatement = connection.prepareStatement(
+                        SQLStatements.DELETE_CURRENCY_FROM_CURRENCIES(tablePrefix)
+                )
+                currenciesStatement.setString(1, currency.uuid.toString())
+                currenciesStatement.execute()
 
-            val balancesStatement = connection.prepareStatement(
-                SQLStatements.DELETE_BALANCES_WITH_CURRENCY_ID(tablePrefix)
-            )
-            balancesStatement.setString(1, currency.uuid.toString())
-            balancesStatement.execute()
+                val balancesStatement = connection.prepareStatement(
+                        SQLStatements.DELETE_BALANCES_WITH_CURRENCY_ID(tablePrefix)
+                )
+                balancesStatement.setString(1, currency.uuid.toString())
+                balancesStatement.execute()
+            } catch (ex: SQLException) {
+                ex.printStackTrace()
+            } finally {
+                connection.close()
+            }
         } catch (ex: SQLException) {
             ex.printStackTrace()
         }
@@ -223,30 +248,36 @@ class MySQLStorage(
         try {
             val connection = hikari.connection
 
-            val idBalance = linkedMapOf<String, Double>()
-            val balanceStatement = connection.prepareStatement(
-                SQLStatements.SELECT_TOP_ACCOUNTS_BALANCES(tablePrefix, offset, amount)
-            )
-            balanceStatement.setString(1, currency.uuid.toString())
-
-            val balanceResults = balanceStatement.executeQuery()
-            while (balanceResults.next())
-                idBalance[balanceResults.getString(BalanceParams.accountID)] = balanceResults.getDouble(BalanceParams.balance)
-
-            balanceResults.close()
-
-            if (idBalance.isNotEmpty()) {
-                val accountStatement = connection.prepareStatement(
-                    SQLStatements.SELECT_TOP_ACCOUNT_NICKNAMES(tablePrefix, idBalance.size)
+            try {
+                val idBalance = linkedMapOf<String, Double>()
+                val balanceStatement = connection.prepareStatement(
+                        SQLStatements.SELECT_TOP_ACCOUNTS_BALANCES(tablePrefix, offset, amount)
                 )
-                var currentParam = 1
-                idBalance.keys.forEach {
-                    accountStatement.setString(currentParam++, it)
+                balanceStatement.setString(1, currency.uuid.toString())
+
+                val balanceResults = balanceStatement.executeQuery()
+                while (balanceResults.next())
+                    idBalance[balanceResults.getString(BalanceParams.accountID)] = balanceResults.getDouble(BalanceParams.balance)
+
+                balanceResults.close()
+
+                if (idBalance.isNotEmpty()) {
+                    val accountStatement = connection.prepareStatement(
+                            SQLStatements.SELECT_TOP_ACCOUNT_NICKNAMES(tablePrefix, idBalance.size)
+                    )
+                    var currentParam = 1
+                    idBalance.keys.forEach {
+                        accountStatement.setString(currentParam++, it)
+                    }
+                    val accountResults = accountStatement.executeQuery()
+                    while (accountResults.next()) {
+                        resultPair[accountResults.getString(AccountParams.nickname)] = idBalance[accountResults.getString(AccountParams.uuid)]!!
+                    }
                 }
-                val accountResults = accountStatement.executeQuery()
-                while (accountResults.next()) {
-                    resultPair[accountResults.getString(AccountParams.nickname)] = idBalance[accountResults.getString(AccountParams.uuid)]!!
-                }
+            } catch (ex: SQLException) {
+                ex.printStackTrace()
+            } finally {
+                connection.close()
             }
         } catch (ex: SQLException) {
             ex.printStackTrace()
@@ -273,16 +304,21 @@ class MySQLStorage(
 
         try {
             val connection = hikari.connection
+            try {
+                val result = connection.prepareStatement(
+                        SQLStatements.SELECT_ALL_ACCOUNT_IDS(tablePrefix)
+                ).executeQuery()
 
-            val result = connection.prepareStatement(
-                SQLStatements.SELECT_ALL_ACCOUNT_IDS(tablePrefix)
-            ).executeQuery()
-
-            while (result.next()) {
-                sharedLoadAccount(AccountParams.uuid, result.getString(AccountParams.uuid))
-                    ?.let {
-                        accounts.add(it)
-                    }
+                while (result.next()) {
+                    sharedLoadAccount(AccountParams.uuid, result.getString(AccountParams.uuid))
+                            ?.let {
+                                accounts.add(it)
+                            }
+                }
+            } catch (ex: SQLException) {
+                ex.printStackTrace()
+            } finally {
+                connection.close()
             }
         } catch (ex: SQLException) {
             ex.printStackTrace()
@@ -296,33 +332,38 @@ class MySQLStorage(
 
         try {
             val connection = hikari.connection
-
-            val statement = connection.prepareStatement(
-                SQLStatements.SELECT_ACCOUNT(tablePrefix, idKey)
-            )
-            statement.setString(1, id)
-
-            val result = statement.executeQuery()
-            if (result.next()) {
-                account = Account(
-                    UUID.fromString(result.getString(AccountParams.uuid)),
-                    result.getString(AccountParams.nickname)
+            try {
+                val statement = connection.prepareStatement(
+                        SQLStatements.SELECT_ACCOUNT(tablePrefix, idKey)
                 )
-                account.canReceiveCurrency = result.getInt(AccountParams.payable) == 1
+                statement.setString(1, id)
 
-                val balancesStatement = connection.prepareStatement(
-                    SQLStatements.SELECT_BALANCES_FOR_ACCOUNT(tablePrefix)
-                )
-                balancesStatement.setString(1, account.uuid.toString())
+                val result = statement.executeQuery()
+                if (result.next()) {
+                    account = Account(
+                            UUID.fromString(result.getString(AccountParams.uuid)),
+                            result.getString(AccountParams.nickname)
+                    )
+                    account.canReceiveCurrency = result.getInt(AccountParams.payable) == 1
 
-                val balancesResult = balancesStatement.executeQuery()
-                while (balancesResult.next()) {
-                    plugin.currencyManager.getCurrency(
-                        UUID.fromString(balancesResult.getString(BalanceParams.currencyID))
-                    )?.let {
-                        account.modifyBalance(it, balancesResult.getDouble(BalanceParams.balance), false)
+                    val balancesStatement = connection.prepareStatement(
+                            SQLStatements.SELECT_BALANCES_FOR_ACCOUNT(tablePrefix)
+                    )
+                    balancesStatement.setString(1, account.uuid.toString())
+
+                    val balancesResult = balancesStatement.executeQuery()
+                    while (balancesResult.next()) {
+                        plugin.currencyManager.getCurrency(
+                                UUID.fromString(balancesResult.getString(BalanceParams.currencyID))
+                        )?.let {
+                            account.modifyBalance(it, balancesResult.getDouble(BalanceParams.balance), false)
+                        }
                     }
                 }
+            } catch (ex: SQLException) {
+                ex.printStackTrace()
+            } finally {
+                connection.close()
             }
         } catch (ex: SQLException) {
             ex.printStackTrace()
@@ -337,19 +378,25 @@ class MySQLStorage(
         try {
             val connection = hikari.connection
 
-            val accountStatement = connection.prepareStatement(accountSQL)
-            accountStatement.setString(1, account.displayName)
-            accountStatement.setString(2, account.uuid.toString())
-            accountStatement.setInt(3, if (account.canReceiveCurrency) 1 else 0)
-            accountStatement.execute()
+            try {
+                val accountStatement = connection.prepareStatement(accountSQL)
+                accountStatement.setString(1, account.displayName)
+                accountStatement.setString(2, account.uuid.toString())
+                accountStatement.setInt(3, if (account.canReceiveCurrency) 1 else 0)
+                accountStatement.execute()
 
-            plugin.currencyManager.currencies.forEach { currency ->
-                val balance = account.getBalance(currency.plural).let { if (it == -100.00) currency.defaultBalance else it }
-                val balanceStatement = connection.prepareStatement(balances)
-                balanceStatement.setString(1, account.uuid.toString())
-                balanceStatement.setString(2, currency.uuid.toString())
-                balanceStatement.setDouble(3, balance)
-                balanceStatement.execute()
+                plugin.currencyManager.currencies.forEach { currency ->
+                    val balance = account.getBalance(currency.plural).let { if (it == -100.00) currency.defaultBalance else it }
+                    val balanceStatement = connection.prepareStatement(balances)
+                    balanceStatement.setString(1, account.uuid.toString())
+                    balanceStatement.setString(2, currency.uuid.toString())
+                    balanceStatement.setDouble(3, balance)
+                    balanceStatement.execute()
+                }
+            } catch (ex: SQLException) {
+                ex.printStackTrace()
+            } finally {
+                connection.close()
             }
         } catch (ex: SQLException) {
             ex.printStackTrace()
@@ -362,17 +409,23 @@ class MySQLStorage(
         try {
             val connection = hikari.connection
 
-            val accountStatement = connection.prepareStatement(
-                SQLStatements.DELETE_ACCOUNT(tablePrefix)
-            )
-            accountStatement.setString(1, account.uuid.toString())
-            accountStatement.execute()
+            try {
+                val accountStatement = connection.prepareStatement(
+                        SQLStatements.DELETE_ACCOUNT(tablePrefix)
+                )
+                accountStatement.setString(1, account.uuid.toString())
+                accountStatement.execute()
 
-            val balanceStatement = connection.prepareStatement(
-                SQLStatements.DELETE_BALANCES_FOR_ACCOUNT(tablePrefix)
-            )
-            balanceStatement.setString(1, account.uuid.toString())
-            balanceStatement.execute()
+                val balanceStatement = connection.prepareStatement(
+                        SQLStatements.DELETE_BALANCES_FOR_ACCOUNT(tablePrefix)
+                )
+                balanceStatement.setString(1, account.uuid.toString())
+                balanceStatement.execute()
+            } catch (ex: SQLException) {
+                ex.printStackTrace()
+            } finally {
+                connection.close()
+            }
         } catch (ex: SQLException) {
             ex.printStackTrace()
         }
@@ -383,21 +436,26 @@ class MySQLStorage(
 
         try {
             val connection = hikari.connection
+            try {
+                val accountStatement = connection.prepareStatement(accountSQL)
+                accountStatement.setString(1, account.displayName)
+                accountStatement.setString(2, account.uuid.toString())
+                accountStatement.setInt(3, if (account.canReceiveCurrency) 1 else 0)
 
-            val accountStatement = connection.prepareStatement(accountSQL)
-            accountStatement.setString(1, account.displayName)
-            accountStatement.setString(2, account.uuid.toString())
-            accountStatement.setInt(3, if (account.canReceiveCurrency) 1 else 0)
+                accountStatement.execute()
 
-            accountStatement.execute()
-
-            plugin.currencyManager.currencies.forEach {
-                val balance = it.defaultBalance
-                val balanceStatement = connection.prepareStatement(balances)
-                balanceStatement.setString(1, account.uuid.toString())
-                balanceStatement.setString(2, it.uuid.toString())
-                balanceStatement.setDouble(3, balance)
-                balanceStatement.execute()
+                plugin.currencyManager.currencies.forEach {
+                    val balance = it.defaultBalance
+                    val balanceStatement = connection.prepareStatement(balances)
+                    balanceStatement.setString(1, account.uuid.toString())
+                    balanceStatement.setString(2, it.uuid.toString())
+                    balanceStatement.setDouble(3, balance)
+                    balanceStatement.execute()
+                }
+            } catch (ex: SQLException) {
+                ex.printStackTrace()
+            } finally {
+                connection.close()
             }
         } catch (ex: SQLException) {
             ex.printStackTrace()
