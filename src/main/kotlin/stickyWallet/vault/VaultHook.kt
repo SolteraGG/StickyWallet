@@ -170,7 +170,7 @@ class VaultHook : AbstractEconomy() {
 
         var balance by Delegates.notNull<Double>()
         var type = EconomyResponse.ResponseType.FAILURE
-        lateinit var error: String
+        var error: String? = null
 
         val user = if (uuid) {
             StickyPlugin.instance.accountManager.getAccount(UUID.fromString(input))
@@ -220,7 +220,7 @@ class VaultHook : AbstractEconomy() {
 
         var balance by Delegates.notNull<Double>()
         var type = EconomyResponse.ResponseType.FAILURE
-        lateinit var error: String
+        var error: String? = null
 
         val user = if (uuid) {
             StickyPlugin.instance.accountManager.getAccount(UUID.fromString(input))
