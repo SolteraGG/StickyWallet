@@ -170,7 +170,7 @@ class VaultHook : AbstractEconomy() {
 
         var balance by Delegates.notNull<Double>()
         var type = EconomyResponse.ResponseType.FAILURE
-        lateinit var error: String
+        var error: String? = null
 
         val user = if (uuid) {
             StickyPlugin.instance.accountManager.getAccount(UUID.fromString(input))
@@ -220,7 +220,7 @@ class VaultHook : AbstractEconomy() {
 
         var balance by Delegates.notNull<Double>()
         var type = EconomyResponse.ResponseType.FAILURE
-        lateinit var error: String
+        var error: String? = null
 
         val user = if (uuid) {
             StickyPlugin.instance.accountManager.getAccount(UUID.fromString(input))
@@ -234,12 +234,12 @@ class VaultHook : AbstractEconomy() {
             if (user.deposit(currency, amount)) {
                 type = EconomyResponse.ResponseType.SUCCESS
             } else {
-                error = "Could not deposit $amount from $playerName because they are not allowed to receive currencies."
+                error = "Could not deposit $amount to $playerName because they are not allowed to receive currencies."
             }
             balance = user.getBalance(currency)
         } else {
             balance = 0.0
-            error = "Could not withdraw $amount from $playerName because either the account or currency couldn't be found."
+            error = "Could not withdraw $amount to $playerName because either the account or currency couldn't be found."
         }
 
         return EconomyResponse(amount, balance, type, error)
