@@ -21,7 +21,6 @@ class BalanceCommand : TabExecutor {
 
             val account: Account? = if (args.isEmpty() && sender is Player) {
                 plugin.accountManager.getAccount(sender)
-
             } else if (sender.hasPermission(Permissions.COMMAND_BALANCE_OTHER) && args.size == 1) {
                 plugin.accountManager.getAccount(args[0])
             } else {
