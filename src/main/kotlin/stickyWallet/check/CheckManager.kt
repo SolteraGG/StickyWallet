@@ -50,6 +50,8 @@ class CheckManager(private val plugin: StickyPlugin) {
         nbt.setString(nbtCurrency, currency.plural)
         nbt.setString(nbtValue, amount.toString())
 
+        nbt.setBoolean(nbtNotSellable, true)
+
         return nbt.bukkitItem
     }
 
@@ -60,6 +62,7 @@ class CheckManager(private val plugin: StickyPlugin) {
                 itemStack.getString(nbtValue) == null -> false
                 itemStack.getString(nbtIssuer) == null -> false
                 itemStack.getString(nbtCurrency) == null -> false
+                // 'nbtNotSellable' was added later, so it does not make sense to enforce it's presence. It also has no effect on a check's validity.
                 else -> {
                     val original = this.checkBaseItem.itemMeta.displayName
                     val currentMeta = itemStack.bukkitItem.itemMeta ?: return false
@@ -105,6 +108,6 @@ class CheckManager(private val plugin: StickyPlugin) {
         const val nbtIssuer = "issuer"
         const val nbtValue = "value"
         const val nbtCurrency = "currency"
+        const val nbtNotSellable = "notsellable"
     }
-
 }
