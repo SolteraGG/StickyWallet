@@ -1,6 +1,7 @@
 import org.bukkit.ChatColor
 import org.bukkit.plugin.java.JavaPlugin
 import stickyWallet.accounts.AccountManager
+import stickyWallet.apis.PlaceholderAPI
 import stickyWallet.bungee.UpdateForwarder
 import stickyWallet.check.CheckManager
 import stickyWallet.commands.*
@@ -89,6 +90,10 @@ class StickyPlugin : JavaPlugin() {
             vaultManager.hook()
         } else {
             ServerUtils.log("Vault linking has been disabled")
+        }
+
+        if (server.pluginManager.getPlugin("PlaceholderAPI") != null) {
+            PlaceholderAPI().register();
         }
 
         if (loggingTransactions) economyLogger.save()
