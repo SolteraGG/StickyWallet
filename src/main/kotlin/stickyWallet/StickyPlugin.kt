@@ -145,7 +145,7 @@ class StickyPlugin : JavaPlugin() {
                 dataStore.loadCurrencies()
                 ServerUtils.log("Successfully loaded ${currencyManager.currencies.size} currencies!")
             }
-        } catch (ex: Throwable) {
+        } catch (ex: Exception) {
             ServerUtils.log("§cCannot load initial data from the data store!")
             ServerUtils.log("§cDouble check your config, and try again!")
             ex.printStackTrace()

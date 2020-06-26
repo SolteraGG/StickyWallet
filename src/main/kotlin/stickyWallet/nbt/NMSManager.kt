@@ -45,6 +45,7 @@ class NMSManager {
         registerVersion(V1_13_R2)
         registerVersion(V1_14_R1)
         registerVersion(V1_15_R1)
+        registerVersion(V1_16_R1)
     }
 
     private fun registerVersion(string: String) {
@@ -72,6 +73,7 @@ class NMSManager {
         private const val V1_13_R2 = "v1_13_R2"
         private const val V1_14_R1 = "v1_14_R1"
         private const val V1_15_R1 = "v1_15_R1"
+        private const val V1_16_R1 = "v1_16_R1"
     }
 
 }
