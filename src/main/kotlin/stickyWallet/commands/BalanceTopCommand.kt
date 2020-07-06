@@ -1,9 +1,9 @@
 package stickyWallet.commands
 
-import StickyPlugin
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
+import stickyWallet.StickyPlugin
 import stickyWallet.files.L
 import stickyWallet.utils.Permissions
 

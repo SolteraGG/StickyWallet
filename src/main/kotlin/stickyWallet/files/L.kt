@@ -1,7 +1,7 @@
 package stickyWallet.files
 
-import StickyPlugin
 import org.bukkit.command.CommandSender
+import stickyWallet.StickyPlugin
 import stickyWallet.utils.StringUtils
 
 object L {

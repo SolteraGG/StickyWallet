@@ -1,11 +1,11 @@
 package stickyWallet.commands
 
-import StickyPlugin
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
+import stickyWallet.StickyPlugin
 import stickyWallet.currency.Currency
 import stickyWallet.data.YamlStorage
 import stickyWallet.files.L

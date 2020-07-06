@@ -1,5 +1,6 @@
 package stickyWallet.apis
 
+import stickyWallet.StickyPlugin
 import stickyWallet.currency.Currency
 import java.util.*
 

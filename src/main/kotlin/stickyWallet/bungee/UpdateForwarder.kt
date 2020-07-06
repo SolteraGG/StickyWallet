@@ -1,10 +1,10 @@
 package stickyWallet.bungee
 
-import StickyPlugin
 import com.google.common.io.ByteStreams
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.plugin.messaging.PluginMessageListener
+import stickyWallet.StickyPlugin
 import stickyWallet.utils.ServerUtils
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream

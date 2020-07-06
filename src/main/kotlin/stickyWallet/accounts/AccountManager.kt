@@ -1,7 +1,7 @@
 package stickyWallet.accounts
 
-import StickyPlugin
 import org.bukkit.entity.Player
+import stickyWallet.StickyPlugin
 import java.util.*
 
 class AccountManager(private val plugin: StickyPlugin) {

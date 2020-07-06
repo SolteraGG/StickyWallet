@@ -4,6 +4,7 @@ import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
+import stickyWallet.StickyPlugin
 import stickyWallet.accounts.Account
 import stickyWallet.currency.Currency
 import stickyWallet.files.L

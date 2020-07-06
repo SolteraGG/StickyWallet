@@ -1,9 +1,7 @@
 package stickyWallet.utils
 
-import StickyPlugin
+import stickyWallet.StickyPlugin
 import java.io.*
-import java.lang.Exception
-import java.lang.StringBuilder
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 

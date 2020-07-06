@@ -1,8 +1,7 @@
 package stickyWallet.nbt
 
-import StickyPlugin
 import org.bukkit.inventory.ItemStack
-import java.lang.Exception
+import stickyWallet.StickyPlugin
 
 object NBTReflections {
 

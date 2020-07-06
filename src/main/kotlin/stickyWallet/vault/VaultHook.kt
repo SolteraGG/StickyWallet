@@ -1,9 +1,9 @@
 package stickyWallet.vault
 
-import StickyPlugin
 import net.milkbowl.vault.economy.AbstractEconomy
 import net.milkbowl.vault.economy.EconomyResponse
 import org.bukkit.OfflinePlayer
+import stickyWallet.StickyPlugin
 import stickyWallet.utils.ServerUtils
 import java.util.*
 import kotlin.collections.ArrayList
@@ -16,54 +16,55 @@ class VaultHook : AbstractEconomy() {
     override fun getName() = "DDD Pawllet"
 
     override fun isBankOwner(name: String?, playerName: String?) = EconomyResponse(
-            0.0,
-            0.0,
-            EconomyResponse.ResponseType.NOT_IMPLEMENTED,
-            "StickyWallet does not support bank accounts"
+        0.0,
+        0.0,
+        EconomyResponse.ResponseType.NOT_IMPLEMENTED,
+        "StickyWallet does not support bank accounts"
     )
 
     override fun bankDeposit(name: String?, amount: Double) = EconomyResponse(
-            0.0,
-            0.0,
-            EconomyResponse.ResponseType.NOT_IMPLEMENTED,
-            "StickyWallet does not support bank accounts"
+        0.0,
+        0.0,
+        EconomyResponse.ResponseType.NOT_IMPLEMENTED,
+        "StickyWallet does not support bank accounts"
     )
 
     override fun bankWithdraw(name: String?, amount: Double) = EconomyResponse(
-            0.0,
-            0.0,
-            EconomyResponse.ResponseType.NOT_IMPLEMENTED,
-            "StickyWallet does not support bank accounts"
+        0.0,
+        0.0,
+        EconomyResponse.ResponseType.NOT_IMPLEMENTED,
+        "StickyWallet does not support bank accounts"
     )
 
     override fun deleteBank(name: String?) = EconomyResponse(
-            0.0,
-            0.0,
-            EconomyResponse.ResponseType.NOT_IMPLEMENTED,
-            "StickyWallet does not support bank accounts"
+        0.0,
+        0.0,
+        EconomyResponse.ResponseType.NOT_IMPLEMENTED,
+        "StickyWallet does not support bank accounts"
     )
 
     override fun createBank(name: String?, player: String?) = EconomyResponse(
-            0.0,
-            0.0,
-            EconomyResponse.ResponseType.NOT_IMPLEMENTED,
-            "StickyWallet does not support bank accounts"
+        0.0,
+        0.0,
+        EconomyResponse.ResponseType.NOT_IMPLEMENTED,
+        "StickyWallet does not support bank accounts"
     )
 
     override fun isBankMember(name: String?, playerName: String?) = EconomyResponse(
-            0.0,
-            0.0,
-            EconomyResponse.ResponseType.NOT_IMPLEMENTED,
-            "StickyWallet does not support bank accounts"
+        0.0,
+        0.0,
+        EconomyResponse.ResponseType.NOT_IMPLEMENTED,
+        "StickyWallet does not support bank accounts"
     )
 
-    override fun currencyNameSingular() = StickyPlugin.instance.currencyManager.getDefaultCurrency()?.singular ?: "Unknown"
+    override fun currencyNameSingular() =
+        StickyPlugin.instance.currencyManager.getDefaultCurrency()?.singular ?: "Unknown"
 
     override fun bankHas(name: String?, amount: Double) = EconomyResponse(
-            0.0,
-            0.0,
-            EconomyResponse.ResponseType.NOT_IMPLEMENTED,
-            "StickyWallet does not support bank accounts"
+        0.0,
+        0.0,
+        EconomyResponse.ResponseType.NOT_IMPLEMENTED,
+        "StickyWallet does not support bank accounts"
     )
 
     override fun currencyNamePlural() = StickyPlugin.instance.currencyManager.getDefaultCurrency()?.plural ?: "Unknown"
@@ -73,13 +74,14 @@ class VaultHook : AbstractEconomy() {
     override fun fractionalDigits() = -1
 
     override fun bankBalance(name: String?) = EconomyResponse(
-            0.0,
-            0.0,
-            EconomyResponse.ResponseType.NOT_IMPLEMENTED,
-            "StickyWallet does not support bank accounts"
+        0.0,
+        0.0,
+        EconomyResponse.ResponseType.NOT_IMPLEMENTED,
+        "StickyWallet does not support bank accounts"
     )
 
-    override fun format(amount: Double) = StickyPlugin.instance.currencyManager.getDefaultCurrency()?.format(amount) ?: amount.toString()
+    override fun format(amount: Double) =
+        StickyPlugin.instance.currencyManager.getDefaultCurrency()?.format(amount) ?: amount.toString()
 
     override fun hasBankSupport() = false
 
@@ -155,18 +157,25 @@ class VaultHook : AbstractEconomy() {
         return sharedWithdrawPlayer(playerName, amount, playerName)
     }
 
-    override fun withdrawPlayer(player: OfflinePlayer, worldName: String?, amount: Double): EconomyResponse = withdrawPlayer(player, amount)
+    override fun withdrawPlayer(player: OfflinePlayer, worldName: String?, amount: Double): EconomyResponse =
+        withdrawPlayer(player, amount)
 
-    override fun withdrawPlayer(playerName: String, worldName: String?, amount: Double): EconomyResponse = withdrawPlayer(playerName, amount)
+    override fun withdrawPlayer(playerName: String, worldName: String?, amount: Double): EconomyResponse =
+        withdrawPlayer(playerName, amount)
 
-    private fun sharedWithdrawPlayer(input: String, amount: Double, playerName: String, uuid: Boolean = false): EconomyResponse {
+    private fun sharedWithdrawPlayer(
+        input: String,
+        amount: Double,
+        playerName: String,
+        uuid: Boolean = false
+    ): EconomyResponse {
         if (amount < 0.0)
             return EconomyResponse(
-            0.0,
-            0.0,
-            EconomyResponse.ResponseType.FAILURE,
-            "Cannot withdraw negative funds"
-        )
+                0.0,
+                0.0,
+                EconomyResponse.ResponseType.FAILURE,
+                "Cannot withdraw negative funds"
+            )
 
         var balance by Delegates.notNull<Double>()
         var type = EconomyResponse.ResponseType.FAILURE
@@ -189,7 +198,8 @@ class VaultHook : AbstractEconomy() {
             balance = user.getBalance(currency)
         } else {
             balance = 0.0
-            error = "Could not withdraw $amount from $playerName because either the account or currency couldn't be found"
+            error =
+                "Could not withdraw $amount from $playerName because either the account or currency couldn't be found"
         }
 
         return EconomyResponse(amount, balance, type, error)
@@ -205,11 +215,18 @@ class VaultHook : AbstractEconomy() {
         return sharedDepositPlayer(playerName, amount, playerName)
     }
 
-    override fun depositPlayer(player: OfflinePlayer, worldName: String?, amount: Double): EconomyResponse = depositPlayer(player, amount)
+    override fun depositPlayer(player: OfflinePlayer, worldName: String?, amount: Double): EconomyResponse =
+        depositPlayer(player, amount)
 
-    override fun depositPlayer(playerName: String, worldName: String?, amount: Double): EconomyResponse = depositPlayer(playerName, amount)
+    override fun depositPlayer(playerName: String, worldName: String?, amount: Double): EconomyResponse =
+        depositPlayer(playerName, amount)
 
-    private fun sharedDepositPlayer(input: String, amount: Double, playerName: String, uuid: Boolean = false): EconomyResponse {
+    private fun sharedDepositPlayer(
+        input: String,
+        amount: Double,
+        playerName: String,
+        uuid: Boolean = false
+    ): EconomyResponse {
         if (amount < 0.0)
             return EconomyResponse(
                 0.0,
@@ -239,7 +256,8 @@ class VaultHook : AbstractEconomy() {
             balance = user.getBalance(currency)
         } else {
             balance = 0.0
-            error = "Could not withdraw $amount to $playerName because either the account or currency couldn't be found."
+            error =
+                "Could not withdraw $amount to $playerName because either the account or currency couldn't be found."
         }
 
         return EconomyResponse(amount, balance, type, error)

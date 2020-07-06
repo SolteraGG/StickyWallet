@@ -1,6 +1,6 @@
 package stickyWallet.data
 
-import StickyPlugin
+import stickyWallet.StickyPlugin
 import java.io.File
 
 class DataStoreManager {

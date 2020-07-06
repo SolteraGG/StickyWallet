@@ -1,10 +1,10 @@
 package stickyWallet.check
 
-import StickyPlugin
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
+import stickyWallet.StickyPlugin
 import stickyWallet.currency.Currency
 import stickyWallet.nbt.NBTItem
 import stickyWallet.utils.StringUtils

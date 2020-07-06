@@ -1,10 +1,10 @@
 package stickyWallet.accounts
 
-import StickyPlugin
+import org.bukkit.Bukkit
+import stickyWallet.StickyPlugin
 import stickyWallet.currency.Currency
 import stickyWallet.events.ConversionEvent
 import stickyWallet.events.TransactionEvent
-import org.bukkit.Bukkit
 import stickyWallet.utils.ServerUtils
 import stickyWallet.utils.TransactionType
 import java.util.*

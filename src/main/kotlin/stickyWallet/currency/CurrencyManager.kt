@@ -1,6 +1,6 @@
 package stickyWallet.currency
 
-import StickyPlugin
+import stickyWallet.StickyPlugin
 import java.util.*
 
 class CurrencyManager(val plugin: StickyPlugin) {

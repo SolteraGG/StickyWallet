@@ -1,11 +1,10 @@
 package stickyWallet.vault
 
-import StickyPlugin
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
 import org.bukkit.plugin.ServicePriority
+import stickyWallet.StickyPlugin
 import stickyWallet.utils.ServerUtils
-import java.lang.Exception
 
 class VaultManager(private val plugin: StickyPlugin) {
 

@@ -1,7 +1,7 @@
 package stickyWallet.files
 
-import StickyPlugin
 import org.bukkit.Material
+import stickyWallet.StickyPlugin
 
 class Configuration(private val plugin: StickyPlugin) {
 

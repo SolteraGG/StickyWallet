@@ -2,6 +2,7 @@ package stickyWallet.apis
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion
 import org.bukkit.entity.Player
+import stickyWallet.StickyPlugin
 
 class PlaceholderAPI : PlaceholderExpansion() {
     private val plugin = StickyPlugin.instance

@@ -1,15 +1,15 @@
 package stickyWallet.data
 
-import StickyPlugin
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.bukkit.ChatColor
+import stickyWallet.StickyPlugin
 import stickyWallet.accounts.Account
 import stickyWallet.currency.Currency
 import stickyWallet.utils.SQLStatements
-import stickyWallet.utils.SQLStatements.CurrencyParams
-import stickyWallet.utils.SQLStatements.BalanceParams
 import stickyWallet.utils.SQLStatements.AccountParams
+import stickyWallet.utils.SQLStatements.BalanceParams
+import stickyWallet.utils.SQLStatements.CurrencyParams
 import stickyWallet.utils.ServerUtils
 import java.sql.Connection
 import java.sql.SQLException

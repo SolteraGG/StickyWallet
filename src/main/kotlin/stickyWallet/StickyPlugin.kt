@@ -1,3 +1,5 @@
+package stickyWallet
+
 import org.bukkit.ChatColor
 import org.bukkit.plugin.java.JavaPlugin
 import stickyWallet.accounts.AccountManager
@@ -14,7 +16,6 @@ import stickyWallet.nbt.NMSManager
 import stickyWallet.utils.EconomyLogger
 import stickyWallet.utils.ServerUtils
 import stickyWallet.vault.VaultManager
-import java.lang.Exception
 
 class StickyPlugin : JavaPlugin() {
 
@@ -71,7 +72,8 @@ class StickyPlugin : JavaPlugin() {
 
         val currencyCommand = getCommand("currency")!!
         currencyCommand.setExecutor(CurrencyCommand())
-        currencyCommand.usage = "<backend|color|colorlist|convert|create|decimals|default|delete|list|payable|setrate|startbal|view>"
+        currencyCommand.usage =
+            "<backend|color|colorlist|convert|create|decimals|default|delete|list|payable|setrate|startbal|view>"
 
         val economyCommand = getCommand("economy")!!
         economyCommand.setExecutor(EconomyCommand())
@@ -93,7 +95,7 @@ class StickyPlugin : JavaPlugin() {
         }
 
         if (server.pluginManager.getPlugin("PlaceholderAPI") != null) {
-            PlaceholderAPI().register();
+            PlaceholderAPI().register()
         }
 
         if (loggingTransactions) economyLogger.save()
