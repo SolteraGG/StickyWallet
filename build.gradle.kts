@@ -20,8 +20,6 @@ java {
     targetCompatibility = JavaVersion.VERSION_13
 }
 
-
-
 repositories {
     mavenCentral()
     jcenter()
