@@ -128,11 +128,11 @@ tasks {
 //          }
         }
     }
+}
 
-    // Eclipse classpath bugfix
-    eclipse {
-        classpath {
-            containers = setOf("org.eclipse.buildship.core.gradleclasspathcontainer")
-        }
+// Eclipse classpath bugfix
+eclipse {
+    classpath {
+        containers = setOf("org.eclipse.buildship.core.gradleclasspathcontainer")
     }
 }
