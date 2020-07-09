@@ -11,7 +11,7 @@ class PayEvent(
     val payer: Account,
     val receiver: Account,
     val amount: Double
-): Event(), Cancellable {
+) : Event(), Cancellable {
 
     private val handlerList = HandlerList()
     private var cancel: Boolean = false
@@ -26,5 +26,4 @@ class PayEvent(
 
     val formattedAmount
         get() = currency.format(amount)
-
 }

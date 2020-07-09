@@ -1,6 +1,9 @@
-import kr.entree.spigradle.kotlin.*
-import kr.entree.spigradle.data.Load
 import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
+import kr.entree.spigradle.data.Load
+import kr.entree.spigradle.kotlin.codemc
+import kr.entree.spigradle.kotlin.jitpack
+import kr.entree.spigradle.kotlin.paper
+import kr.entree.spigradle.kotlin.vault
 
 plugins {
     id("java")
@@ -10,6 +13,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "5.2.0"
 
     id("eclipse")
+    id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
 }
 
 group = "com.dumbdogdiner"
@@ -47,8 +51,6 @@ dependencies {
 //    TODO: remove this
     implementation("com.zaxxer:HikariCP:3.4.2")
 }
-
-
 
 tasks {
     compileKotlin {

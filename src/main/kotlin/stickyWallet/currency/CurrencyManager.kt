@@ -1,7 +1,7 @@
 package stickyWallet.currency
 
+import java.util.UUID
 import stickyWallet.StickyPlugin
-import java.util.*
 
 class CurrencyManager(val plugin: StickyPlugin) {
 

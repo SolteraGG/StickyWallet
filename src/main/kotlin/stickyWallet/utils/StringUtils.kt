@@ -1,13 +1,13 @@
 package stickyWallet.utils
 
 import com.google.common.collect.Lists
-import stickyWallet.files.L
-import org.bukkit.ChatColor
-import org.bukkit.command.CommandSender
 import java.lang.NumberFormatException
 import java.text.DecimalFormat
 import java.util.ArrayList
 import kotlin.math.round
+import org.bukkit.ChatColor
+import org.bukkit.command.CommandSender
+import stickyWallet.files.L
 
 object StringUtils {
 
@@ -52,5 +52,4 @@ object StringUtils {
     } else {
         plural
     }
-
 }

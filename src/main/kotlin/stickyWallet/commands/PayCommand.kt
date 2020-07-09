@@ -182,5 +182,4 @@ class PayCommand : TabExecutor {
     } catch (ex: NumberFormatException) {
         -111.111
     }
-
 }

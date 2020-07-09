@@ -1,12 +1,12 @@
 package stickyWallet.apis
 
+import java.util.UUID
 import stickyWallet.StickyPlugin
 import stickyWallet.currency.Currency
-import java.util.*
 
 class StickyWalletAPI {
 
-    private val plugin = StickyPlugin.instance;
+    private val plugin = StickyPlugin.instance
 
     init {
         if (plugin.currencyManager.getDefaultCurrency() == null) {
@@ -50,5 +50,4 @@ class StickyWalletAPI {
     fun getBalance(uuid: UUID, currency: Currency): Double? = plugin.accountManager.getAccount(uuid)?.getBalance(currency)
 
     fun getCurrency(name: String): Currency? = this.plugin.currencyManager.getCurrency(name)
-
 }

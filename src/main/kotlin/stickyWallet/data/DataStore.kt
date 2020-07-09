@@ -1,9 +1,9 @@
 package stickyWallet.data
 
+import java.util.UUID
 import stickyWallet.StickyPlugin
 import stickyWallet.accounts.Account
 import stickyWallet.currency.Currency
-import java.util.*
 
 abstract class DataStore(val name: String, val isFetchingTopSupported: Boolean = false) {
 

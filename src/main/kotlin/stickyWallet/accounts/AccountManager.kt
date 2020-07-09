@@ -1,8 +1,8 @@
 package stickyWallet.accounts
 
+import java.util.UUID
 import org.bukkit.entity.Player
 import stickyWallet.StickyPlugin
-import java.util.*
 
 class AccountManager(private val plugin: StickyPlugin) {
 
@@ -35,5 +35,4 @@ class AccountManager(private val plugin: StickyPlugin) {
     }
 
     fun getAllAccounts() = plugin.dataStore.loadAllAccounts()
-
 }

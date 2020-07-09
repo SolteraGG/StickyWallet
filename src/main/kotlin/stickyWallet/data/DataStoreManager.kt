@@ -1,7 +1,7 @@
 package stickyWallet.data
 
-import stickyWallet.StickyPlugin
 import java.io.File
+import stickyWallet.StickyPlugin
 
 class DataStoreManager {
 
@@ -28,5 +28,4 @@ class DataStoreManager {
             plugin.config.getString("mysql.password", "password")!!
         ))
     }
-
 }

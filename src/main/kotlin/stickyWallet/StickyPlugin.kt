@@ -6,7 +6,12 @@ import stickyWallet.accounts.AccountManager
 import stickyWallet.apis.PlaceholderAPI
 import stickyWallet.bungee.UpdateForwarder
 import stickyWallet.check.CheckManager
-import stickyWallet.commands.*
+import stickyWallet.commands.BalanceCommand
+import stickyWallet.commands.BalanceTopCommand
+import stickyWallet.commands.CheckCommand
+import stickyWallet.commands.CurrencyCommand
+import stickyWallet.commands.EconomyCommand
+import stickyWallet.commands.PayCommand
 import stickyWallet.currency.CurrencyManager
 import stickyWallet.data.DataStore
 import stickyWallet.data.DataStoreManager
@@ -166,5 +171,4 @@ class StickyPlugin : JavaPlugin() {
             instance.server.scheduler.runTask(instance, runnable)
         }
     }
-
 }

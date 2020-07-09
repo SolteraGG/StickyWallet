@@ -18,19 +18,19 @@ class NMSManager {
             this.versionID = this.getVersionID(version)
         } else {
             this.versionID = 0
-            Bukkit.getConsoleSender().sendMessage("${ChatColor.DARK_RED}----------------------------------------------------------");
-            Bukkit.getConsoleSender().sendMessage("");
-            Bukkit.getConsoleSender().sendMessage("${ChatColor.DARK_RED}${ChatColor.BOLD}YOU ARE RUNNING AN UNSUPPORTED VERSION OF SPIGOT!");
-            Bukkit.getConsoleSender().sendMessage("");
-            Bukkit.getConsoleSender().sendMessage("${ChatColor.RED}StickyWallet Checks functionality will at best be limited. Please do come");
-            Bukkit.getConsoleSender().sendMessage("${ChatColor.RED}complaining to me, the developer of StickyWallet, when something breaks,");
-            Bukkit.getConsoleSender().sendMessage("${ChatColor.RED}because running an unsupported version will cause exactly this. I do");
-            Bukkit.getConsoleSender().sendMessage("${ChatColor.RED}in no way accept responsibility for ANY damage caused to a server running");
-            Bukkit.getConsoleSender().sendMessage("${ChatColor.RED}an unsupported version of Spigot. It is recommended that you change to");
-            Bukkit.getConsoleSender().sendMessage("${ChatColor.RED}a supported version of Spigot. Supported versions are 1.13, 1.14 & 1.15.");
-            Bukkit.getConsoleSender().sendMessage("${ChatColor.RED}Versions marked with an asterisk (*) may have limited functionality.");
-            Bukkit.getConsoleSender().sendMessage("");
-            Bukkit.getConsoleSender().sendMessage("${ChatColor.DARK_RED}----------------------------------------------------------");
+            Bukkit.getConsoleSender().sendMessage("${ChatColor.DARK_RED}----------------------------------------------------------")
+            Bukkit.getConsoleSender().sendMessage("")
+            Bukkit.getConsoleSender().sendMessage("${ChatColor.DARK_RED}${ChatColor.BOLD}YOU ARE RUNNING AN UNSUPPORTED VERSION OF SPIGOT!")
+            Bukkit.getConsoleSender().sendMessage("")
+            Bukkit.getConsoleSender().sendMessage("${ChatColor.RED}StickyWallet Checks functionality will at best be limited. Please do come")
+            Bukkit.getConsoleSender().sendMessage("${ChatColor.RED}complaining to me, the developer of StickyWallet, when something breaks,")
+            Bukkit.getConsoleSender().sendMessage("${ChatColor.RED}because running an unsupported version will cause exactly this. I do")
+            Bukkit.getConsoleSender().sendMessage("${ChatColor.RED}in no way accept responsibility for ANY damage caused to a server running")
+            Bukkit.getConsoleSender().sendMessage("${ChatColor.RED}an unsupported version of Spigot. It is recommended that you change to")
+            Bukkit.getConsoleSender().sendMessage("${ChatColor.RED}a supported version of Spigot. Supported versions are 1.13, 1.14 & 1.15.")
+            Bukkit.getConsoleSender().sendMessage("${ChatColor.RED}Versions marked with an asterisk (*) may have limited functionality.")
+            Bukkit.getConsoleSender().sendMessage("")
+            Bukkit.getConsoleSender().sendMessage("${ChatColor.DARK_RED}----------------------------------------------------------")
         }
     }
 
@@ -75,5 +75,4 @@ class NMSManager {
         private const val V1_15_R1 = "v1_15_R1"
         private const val V1_16_R1 = "v1_16_R1"
     }
-
 }

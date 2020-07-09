@@ -1,14 +1,14 @@
 package stickyWallet.data
 
-import stickyWallet.accounts.Account
-import stickyWallet.currency.Currency
+import java.io.File
+import java.io.IOException
+import java.util.UUID
 import org.bukkit.ChatColor
 import org.bukkit.configuration.InvalidConfigurationException
 import org.bukkit.configuration.file.YamlConfiguration
+import stickyWallet.accounts.Account
+import stickyWallet.currency.Currency
 import stickyWallet.utils.ServerUtils
-import java.io.File
-import java.io.IOException
-import java.util.*
 
 class YamlStorage(private val file: File) : DataStore("yaml", false) {
 
@@ -185,5 +185,4 @@ class YamlStorage(private val file: File) : DataStore("yaml", false) {
             }
         }
     }
-
 }

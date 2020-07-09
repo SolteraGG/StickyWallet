@@ -37,11 +37,8 @@ class PlaceholderAPI : PlaceholderExpansion() {
             val account = plugin.accountManager.getAccount(player) ?: return "0"
 
             val balance = account.getBalance(currency)
-
-
         }
 
         return null
     }
-
 }

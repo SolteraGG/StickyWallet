@@ -170,5 +170,4 @@ class EconomyCommand : TabExecutor {
     } catch (ex: NumberFormatException) {
         -111.111
     }
-
 }

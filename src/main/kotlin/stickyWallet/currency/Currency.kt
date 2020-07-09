@@ -1,10 +1,9 @@
 package stickyWallet.currency
 
-import org.bukkit.ChatColor
 import java.lang.StringBuilder
 import java.text.NumberFormat
-import java.util.*
-
+import java.util.UUID
+import org.bukkit.ChatColor
 import stickyWallet.utils.StringUtils
 
 data class Currency(var uuid: UUID, var singular: String, var plural: String) {
@@ -20,7 +19,7 @@ data class Currency(var uuid: UUID, var singular: String, var plural: String) {
     fun format(amount: Double): String {
         val amt = StringBuilder()
 
-        if (this.symbol != null) amt.append(this.symbol);
+        if (this.symbol != null) amt.append(this.symbol)
         if (this.decimalSupported) {
             amt.append(StringUtils.format(amount))
         } else {
@@ -29,7 +28,7 @@ data class Currency(var uuid: UUID, var singular: String, var plural: String) {
             if (splitString.isNotEmpty()) s = splitString[0]
             amt.append(NumberFormat.getInstance().format(s.toDouble()))
         }
-        amt.append(" ");
+        amt.append(" ")
         amt.append(if (amount == 1.0) {
             this.singular.replace("_", " ")
         } else {
@@ -37,5 +36,4 @@ data class Currency(var uuid: UUID, var singular: String, var plural: String) {
         })
         return amt.toString()
     }
-
 }

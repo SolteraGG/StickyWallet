@@ -24,7 +24,7 @@ class CheckCommand : TabExecutor {
         }
 
         if (!sender.hasPermission(Permissions.COMMAND_CHECK)) {
-           sender.sendMessage(L.noPermissions)
+            sender.sendMessage(L.noPermissions)
             return true
         }
 
@@ -172,5 +172,4 @@ class CheckCommand : TabExecutor {
 
         return mutableListOf()
     }
-
 }

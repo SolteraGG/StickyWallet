@@ -2,6 +2,9 @@ package stickyWallet.data
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import java.sql.Connection
+import java.sql.SQLException
+import java.util.UUID
 import org.bukkit.ChatColor
 import stickyWallet.StickyPlugin
 import stickyWallet.accounts.Account
@@ -11,9 +14,6 @@ import stickyWallet.utils.SQLStatements.AccountParams
 import stickyWallet.utils.SQLStatements.BalanceParams
 import stickyWallet.utils.SQLStatements.CurrencyParams
 import stickyWallet.utils.ServerUtils
-import java.sql.Connection
-import java.sql.SQLException
-import java.util.*
 
 class MySQLStorage(
     private val host: String,
@@ -36,10 +36,10 @@ class MySQLStorage(
         hikariConfig.password = password
         hikariConfig.maximumPoolSize = 12
         hikariConfig.connectionTimeout = 60000
-        hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
-        hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
-        hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-        hikariConfig.addDataSourceProperty("userServerPrepStmts", "true");
+        hikariConfig.addDataSourceProperty("cachePrepStmts", "true")
+        hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250")
+        hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
+        hikariConfig.addDataSourceProperty("userServerPrepStmts", "true")
     }
 
     @Throws(SQLException::class)
@@ -463,5 +463,4 @@ class MySQLStorage(
 
         plugin.updateForwarder.sendUpdateMessage("account", account.uuid.toString())
     }
-
 }
