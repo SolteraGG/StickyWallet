@@ -29,19 +29,16 @@ repositories {
     maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots") }
     maven { url = uri("https://oss.sonatype.org/content/repositories/central") }
     maven { url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi") }
-    maven {
-        name = "mccommandapi"
-        url = uri("https://raw.githubusercontent.com/JorelAli/1.13-Command-API/mvn-repo/1.13CommandAPI/")
-    }
+    maven { url = uri("https://raw.githubusercontent.com/JorelAli/1.13-Command-API/mvn-repo/1.13CommandAPI/") }
 }
 
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
 
-    shadow(paper("1.16.1"))
-    shadow(vault())
-    shadow("me.clip:placeholderapi:2.10.6")
+    compileOnly(paper("1.16.1"))
+    compileOnly(vault())
+    compileOnly("me.clip:placeholderapi:2.10.6")
 
     implementation("dev.jorel:commandapi-core:3.2")
     implementation("org.jetbrains.exposed:exposed-core:0.26.1")
@@ -91,7 +88,6 @@ tasks {
         apiVersion = "1.16"
         load = Load.STARTUP
         loadBefore = listOf("ItemFrameShops")
-        depends = listOf()
         commands {
             create("balance") {
                 aliases = listOf("gbal", "gmoney", "bal")
