@@ -60,7 +60,6 @@ class BalanceCommand : TabExecutor {
                     }
                 }
             }
-
         })
 
         return true
@@ -81,5 +80,4 @@ class BalanceCommand : TabExecutor {
 
         return mutableListOf()
     }
-
 }

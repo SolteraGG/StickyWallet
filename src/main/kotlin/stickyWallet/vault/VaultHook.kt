@@ -1,13 +1,13 @@
 package stickyWallet.vault
 
+import java.util.UUID
+import kotlin.collections.ArrayList
+import kotlin.properties.Delegates
 import net.milkbowl.vault.economy.AbstractEconomy
 import net.milkbowl.vault.economy.EconomyResponse
 import org.bukkit.OfflinePlayer
 import stickyWallet.StickyPlugin
 import stickyWallet.utils.ServerUtils
-import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.properties.Delegates
 
 class VaultHook : AbstractEconomy() {
 

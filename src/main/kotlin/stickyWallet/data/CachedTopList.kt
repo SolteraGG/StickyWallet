@@ -1,7 +1,7 @@
 package stickyWallet.data
 
-import stickyWallet.currency.Currency
 import java.util.concurrent.TimeUnit
+import stickyWallet.currency.Currency
 
 data class CachedTopList(
     val currency: Currency,
@@ -12,10 +12,10 @@ data class CachedTopList(
 
     var results = linkedMapOf<String, Double>()
 
-    fun matches(currency: Currency, offset: Int, amount: Int)
-            = currency.uuid == this.currency.uuid
-            && offset == this.offset
-            && amount == this.amount
+    fun matches(currency: Currency, offset: Int, amount: Int) =
+            currency.uuid == this.currency.uuid &&
+            offset == this.offset &&
+            amount == this.amount
 
     val expired
         get() = System.currentTimeMillis() - this.cacheTime > TimeUnit.MINUTES.toMillis(1)

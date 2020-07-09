@@ -1,9 +1,14 @@
 package stickyWallet.utils
 
-import stickyWallet.StickyPlugin
-import java.io.*
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.FileWriter
+import java.io.IOException
+import java.io.PrintWriter
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import stickyWallet.StickyPlugin
 
 class EconomyLogger(private val plugin: StickyPlugin) {
 
@@ -100,7 +105,7 @@ class EconomyLogger(private val plugin: StickyPlugin) {
             val builder = StringBuilder()
             appendDate(builder)
             val element = ex.stackTrace[0]
-            builder.append("[ERROR - ${ex.toString()}] ")
+            builder.append("[ERROR - $ex] ")
                 .append(ex.message)
                 .append(" (${element.fileName} in ${element.methodName} at ${element.lineNumber})\n")
             builder.append(message)
@@ -123,5 +128,4 @@ class EconomyLogger(private val plugin: StickyPlugin) {
         writer.println(string)
         writer.close()
     }
-
 }

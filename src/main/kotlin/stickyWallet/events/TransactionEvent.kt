@@ -1,10 +1,10 @@
 package stickyWallet.events
 
-import stickyWallet.accounts.Account
-import stickyWallet.currency.Currency
 import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
 import org.bukkit.event.HandlerList
+import stickyWallet.accounts.Account
+import stickyWallet.currency.Currency
 import stickyWallet.utils.TransactionType
 
 class TransactionEvent(
@@ -12,7 +12,7 @@ class TransactionEvent(
     val account: Account,
     val amount: Double,
     val type: TransactionType
-): Event(), Cancellable {
+) : Event(), Cancellable {
 
     private val handlerList = HandlerList()
     private var cancel: Boolean = false
@@ -27,5 +27,4 @@ class TransactionEvent(
 
     val formattedAmount
         get() = currency.format(amount)
-
 }

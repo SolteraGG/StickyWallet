@@ -1,15 +1,15 @@
 package stickyWallet.bungee
 
 import com.google.common.io.ByteStreams
+import java.io.ByteArrayOutputStream
+import java.io.DataOutputStream
+import java.io.IOException
+import java.util.UUID
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.plugin.messaging.PluginMessageListener
 import stickyWallet.StickyPlugin
 import stickyWallet.utils.ServerUtils
-import java.io.ByteArrayOutputStream
-import java.io.DataOutputStream
-import java.io.IOException
-import java.util.*
 
 class UpdateForwarder(private val plugin: StickyPlugin) : PluginMessageListener {
 
@@ -69,5 +69,4 @@ class UpdateForwarder(private val plugin: StickyPlugin) : PluginMessageListener 
         Bukkit.getOnlinePlayers().firstOrNull()
             ?.sendPluginMessage(plugin, "BungeeCord", out.toByteArray())
     }
-
 }

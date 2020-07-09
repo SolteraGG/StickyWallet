@@ -31,5 +31,4 @@ class StickyWalletV2 : JavaPlugin() {
             instance.server.scheduler.runTaskLater(instance, runnable, after)
         }
     }
-
 }

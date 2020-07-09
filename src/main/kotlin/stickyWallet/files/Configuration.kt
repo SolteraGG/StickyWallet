@@ -147,5 +147,4 @@ class Configuration(private val plugin: StickyPlugin) {
     companion object {
         private const val path = "messages."
     }
-
 }

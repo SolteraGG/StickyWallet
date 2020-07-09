@@ -1,10 +1,10 @@
 package stickyWallet.events
 
-import stickyWallet.accounts.Account
-import stickyWallet.currency.Currency
 import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
 import org.bukkit.event.HandlerList
+import stickyWallet.accounts.Account
+import stickyWallet.currency.Currency
 
 class ConversionEvent(
     val exchanged: Currency,
@@ -12,7 +12,7 @@ class ConversionEvent(
     val account: Account,
     val amountExchanged: Double,
     val amountReceived: Double
-): Event(), Cancellable {
+) : Event(), Cancellable {
 
     private val handlerList = HandlerList()
     private var cancel: Boolean = false
@@ -30,5 +30,4 @@ class ConversionEvent(
 
     val formattedExchangedAmount
         get() = exchanged.format(amountExchanged)
-
 }

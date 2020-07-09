@@ -35,5 +35,4 @@ class VaultManager(private val plugin: StickyPlugin) {
             this.hook = null
         }
     }
-
 }

@@ -1,5 +1,6 @@
 package stickyWallet.commands
 
+import java.io.File
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.command.Command
@@ -12,7 +13,6 @@ import stickyWallet.files.L
 import stickyWallet.utils.Permissions
 import stickyWallet.utils.ServerUtils
 import stickyWallet.utils.StringUtils
-import java.io.File
 
 class CurrencyCommand : TabExecutor {
 
@@ -171,7 +171,7 @@ class CurrencyCommand : TabExecutor {
                         }
                         resetOrNewSymbol.length == 1 -> {
                             newSymbol = resetOrNewSymbol
-                            sender.sendMessage("${L.prefix}§7Currency symbol for §f${currency.plural} §7was updated to: §a${resetOrNewSymbol}")
+                            sender.sendMessage("${L.prefix}§7Currency symbol for §f${currency.plural} §7was updated to: §a$resetOrNewSymbol")
                         }
                         else -> {
                             sender.sendMessage("${L.prefix}§7Symbol must be 1 character or removed with \"${ChatColor.AQUA}remove§7\"")
@@ -342,7 +342,7 @@ class CurrencyCommand : TabExecutor {
         }
         plugin.currencyManager.createNewCurrency(single, plural)
         ServerUtils.log("Created currency $single ($plural)")
-        sender.sendMessage("${L.prefix}§7Created currency: §a${single}")
+        sender.sendMessage("${L.prefix}§7Created currency: §a$single")
     }
 
     private fun listCurrency(sender: CommandSender, search: String) {
@@ -486,7 +486,7 @@ class CurrencyCommand : TabExecutor {
         oldCurrencies.forEach {
             val newCurrency = Currency(it.uuid, it.singular, it.plural)
             newCurrency.exchangeRate = it.exchangeRate
-            newCurrency.defaultCurrency =  it.defaultCurrency
+            newCurrency.defaultCurrency = it.defaultCurrency
             newCurrency.symbol = it.symbol
             newCurrency.color = it.color
             newCurrency.decimalSupported = it.decimalSupported
@@ -569,5 +569,4 @@ class CurrencyCommand : TabExecutor {
     } else {
         "§cNo"
     }
-
 }

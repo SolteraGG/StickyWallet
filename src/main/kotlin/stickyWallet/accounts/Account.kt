@@ -1,5 +1,7 @@
 package stickyWallet.accounts
 
+import java.util.UUID
+import kotlin.math.round
 import org.bukkit.Bukkit
 import stickyWallet.StickyPlugin
 import stickyWallet.currency.Currency
@@ -7,8 +9,6 @@ import stickyWallet.events.ConversionEvent
 import stickyWallet.events.TransactionEvent
 import stickyWallet.utils.ServerUtils
 import stickyWallet.utils.TransactionType
-import java.util.*
-import kotlin.math.round
 
 data class Account(val uuid: UUID, var nickname: String?) {
 
@@ -97,7 +97,7 @@ data class Account(val uuid: UUID, var nickname: String?) {
         }
 
         if (!hasEnough(exchanged, if (!receiveRate) exchangeAmount else finalAmount))
-            return false;
+            return false
 
         if (StickyPlugin.instance.debug) {
             ServerUtils.log("""
@@ -152,5 +152,4 @@ data class Account(val uuid: UUID, var nickname: String?) {
         if (save)
             StickyPlugin.instance.dataStore.saveAccount(this)
     }
-
 }

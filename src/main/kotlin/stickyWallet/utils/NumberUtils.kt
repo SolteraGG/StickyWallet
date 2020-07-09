@@ -1,8 +1,6 @@
 package stickyWallet.utils
 
-
-object StickyNumberUtils {
+object NumberUtils {
 
 //   private numberFormat = SimpleNumberFormatter()
-
 }
