@@ -1,5 +1,6 @@
 import kr.entree.spigradle.kotlin.*
 import kr.entree.spigradle.data.Load
+import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
 
 plugins {
     id("java")
@@ -43,8 +44,8 @@ dependencies {
     shadow(paper("1.16.1"))
     shadow(vault())
     shadow("me.clip:placeholderapi:2.10.6")
-    shadow("dev.jorel:commandapi-core:3.2")
 
+    implementation("dev.jorel:commandapi-core:3.2")
     implementation("org.jetbrains.exposed:exposed-core:0.26.1")
     implementation("org.postgresql:postgresql:42.2.2")
 
@@ -66,11 +67,24 @@ tasks {
         dependsOn("shadowJar")
     }
 
+    task<ConfigureShadowRelocation>("relocateShadowJar") {
+        target = shadowJar.get()
+        prefix = project.name
+    }
+
     shadowJar {
+        // This is causing loads of problems for some reason.
+        // dependsOn("relocateShadowJar")
+
         archiveClassifier.set("")
 
-        project.configurations.implementation.configure() { isCanBeResolved = true }
-        configurations = listOf(project.configurations.implementation.get())
+        project.configurations.implementation.configure { isCanBeResolved = true }
+        project.configurations.shadow.configure { isCanBeResolved = true }
+
+        configurations = listOf(
+            project.configurations.implementation.get(),
+            project.configurations.shadow.get()
+        )
     }
 
     spigot {
@@ -79,7 +93,7 @@ tasks {
         apiVersion = "1.16"
         load = Load.STARTUP
         loadBefore = listOf("ItemFrameShops")
-        depends = listOf("CommandAPI")
+        depends = listOf()
         commands {
             create("balance") {
                 aliases = listOf("gbal", "gmoney", "bal")
@@ -126,4 +140,3 @@ tasks {
         }
     }
 }
-
