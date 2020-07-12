@@ -2,6 +2,7 @@ package stickyWallet.currencies
 
 import org.bukkit.ChatColor
 import stickyWallet.utils.NumberUtilities
+import java.math.BigDecimal
 import java.util.UUID
 
 data class Currency(
@@ -14,10 +15,10 @@ data class Currency(
     var color: ChatColor = ChatColor.WHITE,
     var decimalSupported: Boolean = false,
     var defaultCurrency: Boolean = false,
-    var defaultBalance: Double = 0.0,
-    var exchangeRate: Double = 1.0
+    var defaultBalance: BigDecimal = BigDecimal.ZERO,
+    var exchangeRate: BigDecimal = BigDecimal.ONE
 ) {
-    fun format(amount: Double, compact: Boolean = false): String {
+    fun format(amount: BigDecimal, compact: Boolean = false): String {
         val final = StringBuilder()
 
         this.symbol?.let { final.append(it) }
@@ -26,7 +27,7 @@ data class Currency(
             final.append(NumberUtilities.format(amount))
         } else {
             final.append(
-                if (compact) {
+                if (compact || amount >= BigDecimal(10_000_000)) {
                     NumberUtilities.compactFormat(amount)
                 } else {
                     NumberUtilities.format(amount).split(".")[0]
@@ -35,7 +36,7 @@ data class Currency(
         }
 
         final.append(" ")
-            .append(if (amount == 1.0) {
+            .append(if (amount == BigDecimal(1.0)) {
                 this.singular.replace("_", " ")
             } else {
                 this.plural.replace("_", " ")

@@ -9,6 +9,7 @@ import stickyWallet.accounts.Account
 import stickyWallet.currencies.Currency
 import stickyWallet.interfaces.UsePlugin
 import stickyWallet.sql.tables.BalancesTable
+import java.math.BigDecimal
 import java.util.UUID
 
 class PlaceholderAPI : PlaceholderExpansion(), UsePlugin {
@@ -103,10 +104,10 @@ class PlaceholderAPI : PlaceholderExpansion(), UsePlugin {
                 .orderBy(BalancesTable.balance to SortOrder.DESC)
                 .limit(1, offset = position - 1)
                 .firstOrNull()
-        } ?: return Pair("???", currency.format(0.0))
+        } ?: return Pair("???", currency.format(BigDecimal.ZERO))
 
         val account = pluginInstance.accountStore.getAccount(UUID.fromString(result[BalancesTable.accountID]))
-            ?: return Pair("???", currency.format(0.0))
+            ?: return Pair("???", currency.format(BigDecimal.ZERO))
 
         return Pair(account.playerName!!, currency.format(account.getBalanceForCurrency(currency), compact))
     }

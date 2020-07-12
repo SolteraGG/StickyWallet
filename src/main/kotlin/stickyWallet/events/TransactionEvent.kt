@@ -5,11 +5,12 @@ import org.bukkit.event.Event
 import org.bukkit.event.HandlerList
 import stickyWallet.currencies.Currency
 import stickyWallet.utils.TransactionType
+import java.math.BigDecimal
 
 class TransactionEvent(
     val currency: Currency,
     val account: stickyWallet.accounts.Account,
-    val amount: Double,
+    val amount: BigDecimal,
     val type: TransactionType
 ) : Event(), Cancellable {
 

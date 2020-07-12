@@ -10,6 +10,7 @@ import stickyWallet.configs.L
 import stickyWallet.currencies.Currency
 import stickyWallet.interfaces.UsePlugin
 import stickyWallet.utils.Permissions
+import java.math.BigDecimal
 
 class EconomyCommand : TabExecutor, UsePlugin {
     private val subCommands = listOf(
@@ -82,7 +83,7 @@ class EconomyCommand : TabExecutor, UsePlugin {
 
             val amount = parseAmount(currency, args[2])
 
-            if (amount == -111.111) {
+            if (amount == BigDecimal(-111.111)) {
                 sender.sendMessage(L.invalidAmount)
                 return@doAsync
             }
@@ -155,13 +156,13 @@ class EconomyCommand : TabExecutor, UsePlugin {
 
     private fun parseAmount(currency: Currency, amount: String) = try {
         val temp = if (currency.decimalSupported) {
-            amount.toDouble()
+            amount.toBigDecimal()
         } else {
-            amount.toInt().toDouble()
+            amount.toBigInteger().toBigDecimal()
         }
-        if (temp < 0.0) throw NumberFormatException()
+        if (temp < BigDecimal.ZERO) throw NumberFormatException()
         temp
     } catch (ex: NumberFormatException) {
-        -111.111
+        BigDecimal(-111.111)
     }
 }

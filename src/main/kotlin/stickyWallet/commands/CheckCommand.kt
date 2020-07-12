@@ -13,6 +13,7 @@ import stickyWallet.interfaces.UsePlugin
 import stickyWallet.utils.Permissions
 import stickyWallet.utils.StringUtilities
 import stickyWallet.utils.StringUtilities.colorize
+import java.math.BigDecimal
 
 class CheckCommand : TabExecutor, UsePlugin {
     private val possibleArguments = listOf("redeem", "write")
@@ -107,8 +108,8 @@ class CheckCommand : TabExecutor, UsePlugin {
                     return true
                 }
 
-                val amount = rawAmount.toDouble()
-                if (amount == 0.0) {
+                val amount = rawAmount.toBigDecimal()
+                if (amount == BigDecimal.ZERO) {
                     sender.sendMessage(L.invalidAmount)
                     return true
                 }

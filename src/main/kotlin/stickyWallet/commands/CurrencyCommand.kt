@@ -11,6 +11,7 @@ import stickyWallet.interfaces.UsePlugin
 import stickyWallet.utils.NumberUtilities
 import stickyWallet.utils.Permissions
 import stickyWallet.utils.StringUtilities
+import java.math.BigDecimal
 
 class CurrencyCommand : TabExecutor, UsePlugin {
     private val subCommands = listOf(
@@ -334,18 +335,18 @@ class CurrencyCommand : TabExecutor, UsePlugin {
 
         val newAmount = try {
             val temp = if (currency.decimalSupported) {
-                newStartString.toDouble()
+                newStartString.toBigDecimal()
             } else {
-                newStartString.toInt().toDouble()
+                newStartString.toBigInteger().toBigDecimal()
             }
-            if (temp < 0.0) throw NumberFormatException()
+            if (temp < BigDecimal.ZERO) throw NumberFormatException()
             temp
         } catch (ex: NumberFormatException) {
             sender.sendMessage(L.invalidAmount)
-            -111.111
+            BigDecimal(-111.111)
         }
 
-        if (newAmount == -111.111) return
+        if (newAmount == BigDecimal(-111.111)) return
 
         currency.defaultBalance = newAmount
         pluginInstance.dataHandler.saveCurrency(currency)
@@ -359,15 +360,15 @@ class CurrencyCommand : TabExecutor, UsePlugin {
             return
         }
         val newAmount = try {
-            val temp = newRateString.toDouble()
-            if (temp < 0.0) throw NumberFormatException()
+            val temp = newRateString.toBigDecimal()
+            if (temp < BigDecimal.ZERO) throw NumberFormatException()
             temp
         } catch (ex: NumberFormatException) {
             sender.sendMessage(L.invalidAmount)
-            -111.111
+            BigDecimal(-111.111)
         }
 
-        if (newAmount == -111.111) return
+        if (newAmount == BigDecimal(-111.111)) return
 
         currency.exchangeRate = newAmount
         pluginInstance.dataHandler.saveCurrency(currency)

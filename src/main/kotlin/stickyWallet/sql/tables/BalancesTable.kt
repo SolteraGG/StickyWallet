@@ -8,7 +8,7 @@ object BalancesTable : Table (
 ) {
     val accountID = varchar("account_id", 255)
     val currencyID = varchar("currency_id", 255)
-    val balance = double("balance")
+    val balance = varchar("balance", 512)
 
     override val primaryKey = PrimaryKey(accountID, currencyID)
 }

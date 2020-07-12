@@ -16,8 +16,8 @@ object CurrenciesTable : Table(
     val color = varchar("color", 255).default(ChatColor.WHITE.toString())
     val decimalSupported = bool("decimals_supported").default(false)
     val defaultCurrency = bool("default_currency").default(false)
-    val defaultBalance = double("default_balance").default(0.0)
-    val exchangeRate = double("exchange_rate").default(1.0)
+    val defaultBalance = varchar("default_balance", 512).default("0.0")
+    val exchangeRate = varchar("exchange_rate", 512).default("1.0")
 
     override val primaryKey = PrimaryKey(singular, plural)
 }

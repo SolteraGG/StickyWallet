@@ -22,6 +22,7 @@ import stickyWallet.interfaces.UsePlugin
 import stickyWallet.sql.tables.AccountsTable
 import stickyWallet.sql.tables.BalancesTable
 import stickyWallet.sql.tables.CurrenciesTable
+import java.math.BigDecimal
 import java.util.UUID
 
 object PostgresHandler : UsePlugin, DataHandler("postgres") {
@@ -44,7 +45,7 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
         }
     }
 
-    override fun getTopList(currency: Currency, offset: Long, amount: Int): Map<String, Double>? {
+    override fun getTopList(currency: Currency, offset: Long, amount: Int): Map<String, BigDecimal>? {
         try {
             val pairs = transaction {
                 BalancesTable.join(
@@ -60,7 +61,7 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
                     .orderBy(BalancesTable.balance to SortOrder.DESC)
                     .limit(amount, offset = offset)
                     .map {
-                        Pair(it[AccountsTable.playerName], it[BalancesTable.balance])
+                        Pair(it[AccountsTable.playerName], it[BalancesTable.balance].toBigDecimal())
                     }
             }
 
@@ -98,8 +99,8 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
                     it[color] = currency.color.toString()
                     it[decimalSupported] = currency.decimalSupported
                     it[defaultCurrency] = currency.defaultCurrency
-                    it[defaultBalance] = currency.defaultBalance
-                    it[exchangeRate] = currency.exchangeRate
+                    it[defaultBalance] = currency.defaultBalance.toString()
+                    it[exchangeRate] = currency.exchangeRate.toString()
                 }
             }
 
@@ -159,7 +160,7 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
                         (BalancesTable.currencyID inList pluginInstance.currencyStore.currencies.map { curr -> curr.uuid.toString() })
                     }
                         .map {
-                            Pair(pluginInstance.currencyStore.getCurrency(UUID.fromString(it[BalancesTable.currencyID])), it[BalancesTable.balance])
+                            Pair(pluginInstance.currencyStore.getCurrency(UUID.fromString(it[BalancesTable.currencyID])), it[BalancesTable.balance].toBigDecimal())
                         }
                 }
 
@@ -189,7 +190,7 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
                     BalancesTable.insertOrUpdate(BalancesTable.accountID, BalancesTable.currencyID) {
                         it[accountID] = account.uuid.toString()
                         it[currencyID] = curr.uuid.toString()
-                        it[balance] = account.getBalanceForCurrency(curr)
+                        it[balance] = account.getBalanceForCurrency(curr).toString()
                     }
                 }
                 commit()
@@ -221,8 +222,8 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
         color = ChatColor.getByChar(row[CurrenciesTable.color]) ?: ChatColor.WHITE,
         decimalSupported = row[CurrenciesTable.decimalSupported],
         defaultCurrency = row[CurrenciesTable.defaultCurrency],
-        defaultBalance = row[CurrenciesTable.defaultBalance],
-        exchangeRate = row[CurrenciesTable.exchangeRate]
+        defaultBalance = row[CurrenciesTable.defaultBalance].toBigDecimal(),
+        exchangeRate = row[CurrenciesTable.exchangeRate].toBigDecimal()
     )
 
     private fun rowToAccount(row: ResultRow) = Account(

@@ -8,14 +8,14 @@ import stickyWallet.events.ConversionEvent
 import stickyWallet.events.TransactionEvent
 import stickyWallet.interfaces.UsePlugin
 import stickyWallet.utils.TransactionType
+import java.math.BigDecimal
 import java.util.UUID
-import kotlin.math.round
 
 open class Account(
     val uuid: UUID,
     var playerName: String?
 ) : UsePlugin {
-    val balances = mutableMapOf<Currency, Double>()
+    val balances = mutableMapOf<Currency, BigDecimal>()
 
     val displayName
         get() = playerName ?: uuid.toString()
@@ -30,11 +30,11 @@ open class Account(
         currency.defaultBalance
     }
 
-    open fun hasEnough(currency: Currency, amount: Double) = getBalanceForCurrency(currency) >= amount
-    open fun hasEnough(amount: Double) = pluginInstance.currencyStore.getDefaultCurrency()
+    open fun hasEnough(currency: Currency, amount: BigDecimal) = getBalanceForCurrency(currency) >= amount
+    open fun hasEnough(amount: BigDecimal) = pluginInstance.currencyStore.getDefaultCurrency()
         ?.let { hasEnough(it, amount) } ?: false
 
-    fun modifyCurrencyBalance(currency: Currency, amount: Double, save: Boolean = false) {
+    fun modifyCurrencyBalance(currency: Currency, amount: BigDecimal, save: Boolean = false) {
         balances[currency] = amount
 
         if (save) {
@@ -42,7 +42,7 @@ open class Account(
         }
     }
 
-    open fun withdraw(currency: Currency, amount: Double): Boolean {
+    open fun withdraw(currency: Currency, amount: BigDecimal): Boolean {
         if (!hasEnough(currency, amount)) return false
 
         val event = TransactionEvent(
@@ -69,7 +69,7 @@ open class Account(
         return true
     }
 
-    fun deposit(currency: Currency, amount: Double): Boolean {
+    fun deposit(currency: Currency, amount: BigDecimal): Boolean {
         val event = TransactionEvent(
             currency,
             this,
@@ -93,7 +93,7 @@ open class Account(
         return true
     }
 
-    fun set(currency: Currency, amount: Double): Boolean {
+    fun set(currency: Currency, amount: BigDecimal): Boolean {
         val event = TransactionEvent(
             currency,
             this,
@@ -116,7 +116,7 @@ open class Account(
         return true
     }
 
-    fun convert(exchanged: Currency, exchangeAmount: Double, received: Currency, amount: Double): Boolean {
+    fun convert(exchanged: Currency, exchangeAmount: BigDecimal, received: Currency, amount: BigDecimal): Boolean {
         val event = ConversionEvent(exchanged, received, this, exchangeAmount, amount)
 
         StickyWallet.doSync {
@@ -125,7 +125,7 @@ open class Account(
 
         if (event.isCancelled) return false
 
-        if (amount != -1.0) {
+        if (amount != BigDecimal.ONE.negate()) {
             val removed = getBalanceForCurrency(exchanged) - exchangeAmount
             val added = getBalanceForCurrency(received) + amount
             modifyCurrencyBalance(exchanged, removed, save = false)
@@ -146,7 +146,7 @@ open class Account(
             received.exchangeRate
         }
 
-        val finalAmount = round(exchangeAmount * rate)
+        val finalAmount = exchangeAmount.multiply(rate)
         val removed = getBalanceForCurrency(exchanged) - if (!receiveRate) {
             exchangeAmount
         } else {

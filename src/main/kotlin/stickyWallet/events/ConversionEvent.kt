@@ -5,13 +5,14 @@ import org.bukkit.event.Event
 import org.bukkit.event.HandlerList
 import stickyWallet.accounts.Account
 import stickyWallet.currencies.Currency
+import java.math.BigDecimal
 
 class ConversionEvent(
     val exchanged: Currency,
     val received: Currency,
     val account: Account,
-    val amountExchanged: Double,
-    val amountReceived: Double
+    val amountExchanged: BigDecimal,
+    val amountReceived: BigDecimal
 ) : Event(), Cancellable {
 
     private val handlerList = HandlerList()

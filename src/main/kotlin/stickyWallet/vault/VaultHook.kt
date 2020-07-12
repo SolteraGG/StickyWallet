@@ -4,6 +4,7 @@ import net.milkbowl.vault.economy.AbstractEconomy
 import net.milkbowl.vault.economy.EconomyResponse
 import org.bukkit.OfflinePlayer
 import stickyWallet.interfaces.UsePlugin
+import java.math.BigDecimal
 import java.util.UUID
 import kotlin.properties.Delegates
 
@@ -79,7 +80,7 @@ class VaultHook : AbstractEconomy(), UsePlugin {
     )
 
     override fun format(amount: Double) =
-        pluginInstance.currencyStore.getDefaultCurrency()?.format(amount) ?: amount.toString()
+        pluginInstance.currencyStore.getDefaultCurrency()?.format(BigDecimal(amount)) ?: amount.toString()
 
     override fun hasBankSupport() = false
 
@@ -94,14 +95,14 @@ class VaultHook : AbstractEconomy(), UsePlugin {
     override fun has(playerName: String, amount: Double): Boolean {
         pluginInstance.logger.logIfTransactionLogEnabled("Looking up if player $playerName has $amount money")
         val user = pluginInstance.accountStore.getAccount(playerName)
-        if (user != null) return user.hasEnough(amount)
+        if (user != null) return user.hasEnough(BigDecimal(amount))
         return false
     }
 
     override fun has(player: OfflinePlayer, amount: Double): Boolean {
         pluginInstance.logger.logIfTransactionLogEnabled("Looking up if player ${player.name} (${player.uniqueId}) has $amount money")
         val user = pluginInstance.accountStore.getAccount(player.uniqueId)
-        if (user != null) return user.hasEnough(amount)
+        if (user != null) return user.hasEnough(BigDecimal(amount))
         return false
     }
 
@@ -129,7 +130,7 @@ class VaultHook : AbstractEconomy(), UsePlugin {
         val acc = pluginInstance.accountStore.getAccount(playerName)
         val currency = pluginInstance.currencyStore.getDefaultCurrency()
 
-        return currency?.let { acc?.getBalanceForCurrency(it) } ?: 0.0
+        return currency?.let { acc?.getBalanceForCurrency(it)?.toDouble() } ?: 0.0
     }
 
     override fun getBalance(player: OfflinePlayer): Double {
@@ -138,7 +139,7 @@ class VaultHook : AbstractEconomy(), UsePlugin {
         val acc = pluginInstance.accountStore.getAccount(player.uniqueId)
         val currency = pluginInstance.currencyStore.getDefaultCurrency()
 
-        return currency?.let { acc?.getBalanceForCurrency(it) } ?: 0.0
+        return currency?.let { acc?.getBalanceForCurrency(it)?.toDouble() } ?: 0.0
     }
 
     override fun getBalance(playerName: String, world: String?): Double = getBalance(playerName)
@@ -175,7 +176,7 @@ class VaultHook : AbstractEconomy(), UsePlugin {
                 "Cannot withdraw negative funds"
             )
 
-        var balance by Delegates.notNull<Double>()
+        var balance by Delegates.notNull<BigDecimal>()
         var type = EconomyResponse.ResponseType.FAILURE
         var error: String? = null
 
@@ -188,19 +189,19 @@ class VaultHook : AbstractEconomy(), UsePlugin {
         val currency = pluginInstance.currencyStore.getDefaultCurrency()
 
         if (currency != null && user != null) {
-            if (user.withdraw(currency, amount)) {
+            if (user.withdraw(currency, BigDecimal(amount))) {
                 type = EconomyResponse.ResponseType.SUCCESS
             } else {
                 error = "Could not withdraw $amount from $playerName because they don't have enough funds"
             }
             balance = user.getBalanceForCurrency(currency)
         } else {
-            balance = 0.0
+            balance = BigDecimal.ZERO
             error =
                 "Could not withdraw $amount from $playerName because either the account or currency couldn't be found"
         }
 
-        return EconomyResponse(amount, balance, type, error)
+        return EconomyResponse(amount, balance.toDouble(), type, error)
     }
 
     override fun depositPlayer(player: OfflinePlayer, amount: Double): EconomyResponse {
@@ -233,7 +234,7 @@ class VaultHook : AbstractEconomy(), UsePlugin {
                 "Cannot deposit negative funds"
             )
 
-        var balance by Delegates.notNull<Double>()
+        var balance by Delegates.notNull<BigDecimal>()
         var type = EconomyResponse.ResponseType.FAILURE
         var error: String? = null
 
@@ -246,18 +247,18 @@ class VaultHook : AbstractEconomy(), UsePlugin {
         val currency = pluginInstance.currencyStore.getDefaultCurrency()
 
         if (currency != null && user != null) {
-            if (user.deposit(currency, amount)) {
+            if (user.deposit(currency, BigDecimal(amount))) {
                 type = EconomyResponse.ResponseType.SUCCESS
             } else {
                 error = "Could not deposit $amount to $playerName because they are not allowed to receive currencies."
             }
             balance = user.getBalanceForCurrency(currency)
         } else {
-            balance = 0.0
+            balance = BigDecimal.ZERO
             error =
                 "Could not withdraw $amount to $playerName because either the account or currency couldn't be found."
         }
 
-        return EconomyResponse(amount, balance, type, error)
+        return EconomyResponse(amount, balance.toDouble(), type, error)
     }
 }

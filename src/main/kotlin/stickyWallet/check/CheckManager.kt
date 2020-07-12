@@ -9,6 +9,7 @@ import stickyWallet.configs.PluginConfiguration.CheckSettings
 import stickyWallet.currencies.Currency
 import stickyWallet.interfaces.UsePlugin
 import stickyWallet.utils.StringUtilities
+import java.math.BigDecimal
 
 object CheckManager : UsePlugin {
     private val checkBaseItem: ItemStack
@@ -29,7 +30,7 @@ object CheckManager : UsePlugin {
         this.checkBaseItem = item
     }
 
-    fun write(creatorName: String, currency: Currency, amount: Double): ItemStack {
+    fun write(creatorName: String, currency: Currency, amount: BigDecimal): ItemStack {
         val finalCreatorName = if (creatorName.equals("console", true)) {
             CheckSettings.consoleName
         } else creatorName
@@ -60,7 +61,7 @@ object CheckManager : UsePlugin {
         val store = meta.persistentDataContainer
         store.set(checkIssuerKey, PersistentDataType.STRING, finalCreatorName)
         store.set(checkCurrencyKey, PersistentDataType.STRING, currency.plural)
-        store.set(checkValueKey, PersistentDataType.DOUBLE, amount)
+        store.set(checkValueKey, PersistentDataType.STRING, amount.toString())
 
         checkItem.itemMeta = meta
 
@@ -74,11 +75,11 @@ object CheckManager : UsePlugin {
 
         val dataStore = meta.persistentDataContainer
 
-        val checkValue = dataStore.get(checkValueKey, PersistentDataType.DOUBLE)
+        val checkValue = dataStore.get(checkValueKey, PersistentDataType.STRING)?.toBigDecimal()
         val checkIssuer = dataStore.get(checkIssuerKey, PersistentDataType.STRING)
         val checkCurrency = dataStore.get(checkCurrencyKey, PersistentDataType.STRING)
 
-        if (checkValue == null || checkValue <= 0.0) return null
+        if (checkValue == null || checkValue <= BigDecimal.ZERO) return null
         if (checkIssuer == null) return null
         if (checkCurrency == null || !pluginInstance.currencyStore.currencyExists(checkCurrency)) return null
 
@@ -90,7 +91,7 @@ object CheckManager : UsePlugin {
     }
 
     data class CheckData(
-        val value: Double,
+        val value: BigDecimal,
         val currency: String,
         val issuer: String
     )

@@ -1,15 +1,16 @@
 package stickyWallet.utils
 
+import java.math.BigDecimal
+import java.math.MathContext
 import java.text.CompactNumberFormat
 import java.text.DecimalFormat
 import java.text.NumberFormat
-import kotlin.math.round
 
 object NumberUtilities {
     private val decimalFormat = DecimalFormat()
     private val compactFormat: NumberFormat
 
-    private val patterns = listOf<String>(
+    private val patterns = listOf(
         "",
         "",
         "",
@@ -62,13 +63,15 @@ object NumberUtilities {
             decimalFormat.decimalFormatSymbols,
             patterns.toTypedArray()
         )
+
+        compactFormat.minimumFractionDigits = 3
     }
 
-    fun format(money: Double): String {
-        val roundOff = round(money * 100.0) / 100.0
+    fun format(money: BigDecimal): String {
+        val roundOff = money.times(BigDecimal(100.0)).round(MathContext.DECIMAL128).divide(BigDecimal(100.0))
 
         return decimalFormat.format(roundOff)
     }
 
-    fun compactFormat(money: Double): String = compactFormat.format(money)
+    fun compactFormat(money: BigDecimal): String = compactFormat.format(money)
 }
