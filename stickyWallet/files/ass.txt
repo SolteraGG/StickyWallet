@@ -1,0 +1,50 @@
+messages:
+  currencyExists: '&7Currency already exists.'
+
+  cannotReceiveMoney: '&a{player}&7 can''t receive money.'
+
+  paid: ''
+  payer: ''
+  payNoPermission: ''
+  currencyNotPayable: '{currencycolor}{currency} &7is not payable.'
+
+  exchange_success_custom_other: '&7Successfully exchanged {currencycolor}({currEx})
+    &7for {currencycolor2}{receivedCurr}&7 to player {player}&7.'
+  exchange_success_custom: '&7Successfully exchanged {currencycolor}({currEx}) &7for
+    {currencycolor2}{receivedCurr}&7.'
+  exchange_success: '&7Successfully exchanged {currencycolor}{ex_curr} &7for equivalent
+    value in {currencycolor2}{re_curr}&7.'
+  exchange_command:
+    no_perms:
+      preset: '&7You don''t have permission to exchange currencies with a preset rate.'
+      custom: '&7You don''t have permission to exchange currencies with a custom rate.'
+
+  check:
+    success: ''
+    redeemed: ''
+    invalid: ''
+  help:
+    eco_command:
+
+    exchange_command:
+    - '{prefix}&b&lExchange Help'
+    - '&2&l>> &a/exchange <account> <currency_to_exchange> <amount> <currency_to_receive>
+      <amount> &8- &7Exchange between currencies with a custom rate for an account.'
+    - '&2&l>> &a/exchange <currency_to_exchange> <amount> <currency_to_receive> <amount>
+      &8- &7Exchange between currencies with a custom rate.'
+    - '&2&l>> &a/exchange <currency_to_exchange> <amount> <currency_to_receive> &8-
+      &7Exchange with a pre-set exchange rate.'
+    check_command:
+
+
+  usage:
+    pay_command: ''
+
+    currency_delete: ''
+    currency_convert: '&2&l>> &a/currency convert <method> &8- &7Convert storage method.
+      WARN: Take backups first and make sure the storage you are switching to is empty!'
+    currency_backend: '&2&l>> &a/currency backend <method> &8- &7Switch backend. This
+      does not convert.'
+    currency_list: '&2&l>> &a/currency list &8- &7List of currencies.'
+    currency_colorlist: '&2&l>> &a/currency colorlist &8- &7List of Colors.'
+
