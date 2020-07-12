@@ -96,7 +96,7 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
                     it[singular] = currency.singular
                     it[plural] = currency.plural
                     it[symbol] = currency.symbol
-                    it[color] = currency.color.toString()
+                    it[color] = currency.color.char.toString()
                     it[decimalSupported] = currency.decimalSupported
                     it[defaultCurrency] = currency.defaultCurrency
                     it[defaultBalance] = currency.defaultBalance.toString()

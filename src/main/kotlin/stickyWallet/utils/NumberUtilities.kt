@@ -11,9 +11,9 @@ object NumberUtilities {
     private val compactFormat: NumberFormat
 
     private val patterns = listOf(
-        "",
-        "",
-        "",
+        "0",
+        "00",
+        "000",
         "0k",
         "00k",
         "000k",

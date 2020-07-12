@@ -23,16 +23,13 @@ data class Currency(
 
         this.symbol?.let { final.append(it) }
 
-        if (this.decimalSupported) {
-            final.append(NumberUtilities.format(amount))
+        if (compact || amount >= BigDecimal(10_000_000)) {
+            final.append(NumberUtilities.compactFormat(amount))
         } else {
-            final.append(
-                if (compact || amount >= BigDecimal(10_000_000)) {
-                    NumberUtilities.compactFormat(amount)
-                } else {
-                    NumberUtilities.format(amount).split(".")[0]
-                }
-            )
+            val formatted = NumberUtilities.format(amount)
+
+            if (this.decimalSupported) final.append(formatted)
+            else final.append(formatted.split(".")[0])
         }
 
         final.append(" ")

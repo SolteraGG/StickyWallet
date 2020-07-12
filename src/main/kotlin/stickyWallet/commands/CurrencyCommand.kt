@@ -89,7 +89,7 @@ class CurrencyCommand : TabExecutor, UsePlugin {
                         .append(StringUtilities.pluralize(currencies.size, "currency", "currencies"))
                     sender.sendMessage(builder.toString())
                     currencies.forEach {
-                        sender.sendMessage("§a§l>> §e${it.plural}")
+                        sender.sendMessage("§a§l>> ${it.color}${it.plural}")
                     }
                 }
                 "view" -> {
