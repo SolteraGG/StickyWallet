@@ -85,6 +85,10 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
                     pluginInstance.currencyStore.addCachedCurrency(it)
                     pluginInstance.logger.info("Loaded currency: ${it.plural} of type ${it.type}")
                 }
+
+            if (pluginInstance.currencyStore.currencies.size == 1 || !pluginInstance.currencyStore.currencies.any { it.defaultCurrency }) {
+                pluginInstance.currencyStore.currencies.first().defaultCurrency = true
+            }
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
