@@ -108,12 +108,6 @@ class CheckCommand : TabExecutor, UsePlugin {
                     return true
                 }
 
-                val amount = rawAmount.toBigDecimal()
-                if (amount == BigDecimal.ZERO) {
-                    sender.sendMessage(L.invalidAmount)
-                    return true
-                }
-
                 var noDefault = false
                 val currency = if (args.size == 3) {
                     pluginInstance.currencyStore.getCurrency(args[2])
@@ -129,6 +123,24 @@ class CheckCommand : TabExecutor, UsePlugin {
                     } else {
                         L.unknownCurrency
                     })
+                    return true
+                }
+
+                val amount = try {
+                    val temp = if (currency.decimalSupported) {
+                        rawAmount.toBigDecimal()
+                    } else {
+                        rawAmount.toBigDecimal().toBigInteger().toBigDecimal()
+                    }
+                    if (temp < BigDecimal.ZERO) throw NumberFormatException()
+                    temp
+                } catch (ex: NumberFormatException) {
+                    sender.sendMessage(L.invalidAmount)
+                    BigDecimal(-111.111)
+                }
+
+                if (amount == BigDecimal(-111.111) || amount == BigDecimal.ZERO) {
+                    sender.sendMessage(L.invalidAmount)
                     return true
                 }
 

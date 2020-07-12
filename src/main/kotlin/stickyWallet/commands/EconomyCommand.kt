@@ -158,7 +158,7 @@ class EconomyCommand : TabExecutor, UsePlugin {
         val temp = if (currency.decimalSupported) {
             amount.toBigDecimal()
         } else {
-            amount.toBigInteger().toBigDecimal()
+            amount.toBigDecimal().toBigInteger().toBigDecimal()
         }
         if (temp < BigDecimal.ZERO) throw NumberFormatException()
         temp

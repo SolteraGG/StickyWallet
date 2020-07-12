@@ -337,7 +337,7 @@ class CurrencyCommand : TabExecutor, UsePlugin {
             val temp = if (currency.decimalSupported) {
                 newStartString.toBigDecimal()
             } else {
-                newStartString.toBigInteger().toBigDecimal()
+                newStartString.toBigDecimal().toBigInteger().toBigDecimal()
             }
             if (temp < BigDecimal.ZERO) throw NumberFormatException()
             temp

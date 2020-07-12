@@ -9,7 +9,6 @@ import java.util.UUID
 import kotlin.properties.Delegates
 
 class VaultHook : AbstractEconomy(), UsePlugin {
-
     override fun getBanks(): MutableList<String> = ArrayList()
 
     override fun getName() = "ddd Wallet"
