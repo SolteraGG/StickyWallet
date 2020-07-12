@@ -61,7 +61,7 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
                     .orderBy(BalancesTable.balance to SortOrder.DESC)
                     .limit(amount, offset = offset)
                     .map {
-                        Pair(it[AccountsTable.playerName], it[BalancesTable.balance].toBigDecimal())
+                        Pair(it[AccountsTable.playerName], it[BalancesTable.balance])
                     }
             }
 
@@ -102,8 +102,8 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
                     it[color] = currency.color.char.toString()
                     it[decimalSupported] = currency.decimalSupported
                     it[defaultCurrency] = currency.defaultCurrency
-                    it[defaultBalance] = currency.defaultBalance.toString()
-                    it[exchangeRate] = currency.exchangeRate.toString()
+                    it[defaultBalance] = currency.defaultBalance
+                    it[exchangeRate] = currency.exchangeRate
                 }
             }
 
@@ -163,7 +163,7 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
                         (BalancesTable.currencyID inList pluginInstance.currencyStore.currencies.map { curr -> curr.uuid.toString() })
                     }
                         .map {
-                            Pair(pluginInstance.currencyStore.getCurrency(UUID.fromString(it[BalancesTable.currencyID])), it[BalancesTable.balance].toBigDecimal())
+                            Pair(pluginInstance.currencyStore.getCurrency(UUID.fromString(it[BalancesTable.currencyID])), it[BalancesTable.balance])
                         }
                 }
 
@@ -193,7 +193,7 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
                     BalancesTable.insertOrUpdate(BalancesTable.accountID, BalancesTable.currencyID) {
                         it[accountID] = account.uuid.toString()
                         it[currencyID] = curr.uuid.toString()
-                        it[balance] = account.getBalanceForCurrency(curr).toString()
+                        it[balance] = account.getBalanceForCurrency(curr)
                     }
                 }
                 commit()
@@ -225,8 +225,8 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
         color = ChatColor.getByChar(row[CurrenciesTable.color]) ?: ChatColor.WHITE,
         decimalSupported = row[CurrenciesTable.decimalSupported],
         defaultCurrency = row[CurrenciesTable.defaultCurrency],
-        defaultBalance = row[CurrenciesTable.defaultBalance].toBigDecimal(),
-        exchangeRate = row[CurrenciesTable.exchangeRate].toBigDecimal()
+        defaultBalance = row[CurrenciesTable.defaultBalance],
+        exchangeRate = row[CurrenciesTable.exchangeRate]
     )
 
     private fun rowToAccount(row: ResultRow) = Account(

@@ -3,6 +3,8 @@ package stickyWallet.sql.tables
 import org.bukkit.ChatColor
 import org.jetbrains.exposed.sql.Table
 import stickyWallet.configs.PluginConfiguration
+import stickyWallet.sql.PostgresDecimal
+import java.math.BigDecimal
 
 object CurrenciesTable : Table(
     PluginConfiguration.StorageSettings.storageTablePrefix + "_currencies"
@@ -16,8 +18,8 @@ object CurrenciesTable : Table(
     val color = varchar("color", 255).default(ChatColor.WHITE.toString())
     val decimalSupported = bool("decimals_supported").default(false)
     val defaultCurrency = bool("default_currency").default(false)
-    val defaultBalance = varchar("default_balance", 512).default("0.0")
-    val exchangeRate = varchar("exchange_rate", 512).default("1.0")
+    val defaultBalance = registerColumn<BigDecimal>("default_balance", PostgresDecimal()).default(BigDecimal(0.0))
+    val exchangeRate = registerColumn<BigDecimal>("exchange_rate", PostgresDecimal()).default(BigDecimal(1.0))
 
     override val primaryKey = PrimaryKey(singular, plural)
 }
