@@ -28,7 +28,7 @@ object L {
     val accountMissing = colorize("$prefix&7Your account is missing. Please relog into the server.")
 
     object BalTop {
-        val header = colorize("$prefix&f----- {currencycolor} Top Balances for {currencyplural} &7(Page {page})&f-----")
+        val header = colorize("$prefix&f-- {currencycolor} Top Balances for {currencyplural} &7(Page {page})&f --")
         val empty = colorize("$prefix&7No accounts to display.")
         val entry = colorize("$prefix&a&l-> {number}. {currencycolor}{player} &7- {currencycolor}{balance}")
         val next = colorize("$prefix{currencycolor}/baltop {currencyplural} {page} &7for more.")

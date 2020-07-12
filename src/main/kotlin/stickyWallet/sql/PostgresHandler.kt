@@ -74,14 +74,17 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
 
     override fun loadCurrencies() {
         try {
-            transaction {
+            val loadedCurrencies = transaction {
                 CurrenciesTable.select { (CurrenciesTable.type inList StorageSettings.currencyTypes) }
                     .map { rowToCurrency(it) }
-                    .forEach {
-                        pluginInstance.currencyStore.addCachedCurrency(it)
-                        pluginInstance.logger.info("Loaded currency: ${it.plural} of type ${it.type}")
-                    }
             }
+
+            loadedCurrencies
+                .forEach {
+                    if (loadedCurrencies.size == 1) it.defaultCurrency = true
+                    pluginInstance.currencyStore.addCachedCurrency(it)
+                    pluginInstance.logger.info("Loaded currency: ${it.plural} of type ${it.type}")
+                }
         } catch (ex: Exception) {
             ex.printStackTrace()
         }

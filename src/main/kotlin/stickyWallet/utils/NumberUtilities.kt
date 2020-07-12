@@ -64,7 +64,7 @@ object NumberUtilities {
             patterns.toTypedArray()
         )
 
-        compactFormat.minimumFractionDigits = 3
+        compactFormat.minimumFractionDigits = 1
     }
 
     fun format(money: BigDecimal): String {
