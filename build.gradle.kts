@@ -13,15 +13,15 @@ plugins {
     id("com.github.johnrengelman.shadow") version "5.2.0"
 
     id("eclipse")
-    id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
+    // id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
 }
 
 group = "com.dumbdogdiner"
 version = "2.0.0"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_13
-    targetCompatibility = JavaVersion.VERSION_13
+    sourceCompatibility = JavaVersion.VERSION_12
+    targetCompatibility = JavaVersion.VERSION_12
 }
 
 repositories {
@@ -44,20 +44,18 @@ dependencies {
     compileOnly(vault())
     compileOnly("me.clip:placeholderapi:2.10.6")
 
-    implementation("dev.jorel:commandapi-core:3.2")
-    implementation("org.jetbrains.exposed:exposed-core:0.26.1")
-    implementation("org.postgresql:postgresql:42.2.2")
-
-//    TODO: remove this
-    implementation("com.zaxxer:HikariCP:3.4.2")
+    implementation("org.jetbrains.exposed", "exposed-core", "0.26.1")
+    implementation("org.jetbrains.exposed", "exposed-jdbc", "0.26.1")
+    implementation("pw.forst", "exposed-upsert", "1.0")
+    implementation("org.postgresql", "postgresql", "42.2.2")
 }
 
 tasks {
     compileKotlin {
-        kotlinOptions.jvmTarget = "13"
+        kotlinOptions.jvmTarget = "12"
     }
     compileTestKotlin {
-        kotlinOptions.jvmTarget = "13"
+        kotlinOptions.jvmTarget = "12"
     }
 
     build {

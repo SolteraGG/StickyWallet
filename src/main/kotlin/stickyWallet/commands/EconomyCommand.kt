@@ -4,16 +4,14 @@ import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
-import stickyWallet.StickyPlugin
+import stickyWallet.StickyWallet
 import stickyWallet.accounts.Account
-import stickyWallet.currency.Currency
-import stickyWallet.files.L
+import stickyWallet.configs.L
+import stickyWallet.currencies.Currency
+import stickyWallet.interfaces.UsePlugin
 import stickyWallet.utils.Permissions
 
-class EconomyCommand : TabExecutor {
-
-    private val plugin = StickyPlugin.instance
-
+class EconomyCommand : TabExecutor, UsePlugin {
     private val subCommands = listOf(
         "add",
         "give",
@@ -23,84 +21,80 @@ class EconomyCommand : TabExecutor {
     )
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
-        StickyPlugin.doAsync(Runnable {
+        StickyWallet.doAsync {
             if (!sender.hasPermission(Permissions.COMMAND_ECONOMY)) {
                 sender.sendMessage(L.noPermissions)
-                return@Runnable
+                return@doAsync
             }
             if (args.isEmpty()) {
-                L.manageHelp(sender)
-                return@Runnable
+                L.Economy.sendUsage(sender)
+                return@doAsync
             }
 
             val subCommand: String = args[0]
 
             if (!subCommands.any { it.equals(subCommand, true) }) {
                 sender.sendMessage(L.unknownSubCommand)
-                return@Runnable
+                return@doAsync
             }
 
             when (subCommand) {
                 "add", "give" -> if (!sender.hasPermission(Permissions.COMMAND_ECONOMY_GIVE)) {
                     sender.sendMessage(L.noPermissions)
-                    return@Runnable
+                    return@doAsync
                 }
                 "remove", "take" -> if (!sender.hasPermission(Permissions.COMMAND_ECONOMY_TAKE)) {
                     sender.sendMessage(L.noPermissions)
-                    return@Runnable
+                    return@doAsync
                 }
                 else -> if (!sender.hasPermission(Permissions.COMMAND_ECONOMY_SET)) {
                     sender.sendMessage(L.noPermissions)
-                    return@Runnable
+                    return@doAsync
                 }
             }
 
             val errorMessage = when (subCommand) {
-                "add", "give" -> L.giveUsage
-                "remove", "take" -> L.takeUsage
-                else -> L.setUsage
+                "add", "give" -> L.Economy.give
+                "remove", "take" -> L.Economy.take
+                else -> L.Economy.set
             }
 
             if (args.size < 3) {
                 sender.sendMessage(errorMessage)
-                return@Runnable
+                return@doAsync
             }
 
-            val account: Account? = plugin.accountManager.getAccount(args[1])
+            val account: Account? = pluginInstance.accountStore.getAccount(args[1])
             if (account == null) {
                 sender.sendMessage(L.playerDoesNotExist)
-                return@Runnable
+                return@doAsync
             }
 
-            var currency = plugin.currencyManager.getDefaultCurrency()
+            var currency = pluginInstance.currencyStore.getDefaultCurrency()
 
             if (args.size > 3)
-                currency = plugin.currencyManager.getCurrency(args[3])
+                currency = pluginInstance.currencyStore.getCurrency(args[3])
 
             if (currency == null) {
                 sender.sendMessage(L.unknownCurrency)
-                return@Runnable
+                return@doAsync
             }
 
             val amount = parseAmount(currency, args[2])
 
             if (amount == -111.111) {
                 sender.sendMessage(L.invalidAmount)
-                return@Runnable
+                return@doAsync
             }
 
             val returnMessage = when (subCommand) {
-                "add", "give" -> if (account.canReceiveCurrency) {
-                    L.addMessage
-                } else {
-                    L.cannotReceive
-                }
+                "add", "give" -> L.Economy.addResult
                 "remove", "take" -> if (account.hasEnough(currency, amount)) {
-                    L.takeMessage
+                    L.Economy.takeResult
                 } else {
                     L.targetInsufficientFunds
                 }
-                else -> L.setMessage
+                else -> L.Economy.setResult
             }
                 .replace("{player}", account.displayName)
                 .replace("{currencycolor}", currency.color.toString())
@@ -118,11 +112,11 @@ class EconomyCommand : TabExecutor {
                     sender.sendMessage(returnMessage)
                 }
                 else -> {
-                    account.setBalance(currency, amount)
+                    account.set(currency, amount)
                     sender.sendMessage(returnMessage)
                 }
             }
-        })
+        }
         return true
     }
 
@@ -148,8 +142,8 @@ class EconomyCommand : TabExecutor {
 
         // ?Currency
         if (args.size == 4) {
-            val currencyKeys = plugin.currencyManager.currencies.map { it.singular }.toMutableList()
-            currencyKeys.addAll(plugin.currencyManager.currencies.map { it.plural })
+            val currencyKeys = pluginInstance.currencyStore.currencies.map { it.singular }.toMutableList()
+            currencyKeys.addAll(pluginInstance.currencyStore.currencies.map { it.plural })
 
             return currencyKeys.filter {
                 it.startsWith(args[3], true)

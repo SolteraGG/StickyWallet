@@ -6,141 +6,129 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
 import org.bukkit.entity.Player
-import stickyWallet.StickyPlugin
-import stickyWallet.currency.Currency
+import stickyWallet.StickyWallet
+import stickyWallet.configs.L
+import stickyWallet.currencies.Currency
 import stickyWallet.events.PayEvent
-import stickyWallet.files.L
+import stickyWallet.interfaces.UsePlugin
 import stickyWallet.utils.Permissions
 
-class PayCommand : TabExecutor {
-
-    private val plugin = StickyPlugin.instance
-
+class PayCommand : TabExecutor, UsePlugin {
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
-        StickyPlugin.doAsync(Runnable {
+        StickyWallet.doAsync {
             if (sender !is Player) {
                 sender.sendMessage(L.noConsole)
-                return@Runnable
+                return@doAsync
             }
             if (!sender.hasPermission(Permissions.COMMAND_PAY)) {
                 sender.sendMessage(L.noPermissions)
-                return@Runnable
+                return@doAsync
             }
 
             if (args.size < 2) {
-                sender.sendMessage(L.payUsage)
-                return@Runnable
+                sender.sendMessage(L.Pay.usage)
+                return@doAsync
             }
 
             val (accountSearch, rawAmount) = args
 
-            val playerAccount = plugin.accountManager.getAccount(sender)
+            val playerAccount = pluginInstance.accountStore.getAccount(sender)
             if (playerAccount == null) {
                 sender.sendMessage(L.accountMissing)
-                return@Runnable
+                return@doAsync
             }
 
-            var currency = plugin.currencyManager.getDefaultCurrency()
+            var currency = pluginInstance.currencyStore.getDefaultCurrency()
             if (currency == null) {
                 sender.sendMessage(L.noDefaultCurrency)
-                return@Runnable
+                return@doAsync
             }
 
             if (args.size > 2)
-                currency = plugin.currencyManager.getCurrency(args[2])
+                currency = pluginInstance.currencyStore.getCurrency(args[2])
             if (currency == null) {
                 sender.sendMessage(L.unknownCurrency)
-                return@Runnable
+                return@doAsync
             }
 
-            if (!currency.payable) {
+            if (
+                !sender.hasPermission(Permissions.payCommandCurrency(currency.singular)) ||
+                !sender.hasPermission(Permissions.payCommandCurrency(currency.plural))
+            ) {
                 sender.sendMessage(
-                    L.currencyNotPayable
+                    L.Pay.noPerms
                         .replace("{currencycolor}", currency.color.toString())
                         .replace("{currency}", currency.plural)
                 )
-                return@Runnable
-            }
-
-            if (!sender.hasPermission(Permissions.payCommandCurrency(currency.singular)) || !sender.hasPermission(Permissions.payCommandCurrency(currency.plural))) {
-                sender.sendMessage(
-                    L.noPermsToPay
-                        .replace("{currencycolor}", currency.color.toString())
-                        .replace("{currency}", currency.plural)
-                )
-                return@Runnable
+                return@doAsync
             }
 
             val amount = parseAmount(currency, rawAmount)
             if (amount == -111.111) {
                 sender.sendMessage(L.invalidAmount)
-                return@Runnable
+                return@doAsync
             }
 
-            val receiverAccount = plugin.accountManager.getAccount(accountSearch)
+            val receiverAccount = pluginInstance.accountStore.getAccount(accountSearch)
             if (receiverAccount == null) {
                 sender.sendMessage(L.playerDoesNotExist)
-                return@Runnable
+                return@doAsync
             }
 
             if (playerAccount.uuid == receiverAccount.uuid) {
-                sender.sendMessage(L.payYourself)
-                return@Runnable
-            }
-
-            if (!receiverAccount.canReceiveCurrency) {
-                sender.sendMessage(
-                    L.cannotReceive
-                        .replace("{player}", receiverAccount.displayName)
-                )
-                return@Runnable
+                sender.sendMessage(L.Pay.yourself)
+                return@doAsync
             }
 
             if (!playerAccount.hasEnough(currency, amount)) {
                 sender.sendMessage(
-                    L.insufficientFunds
+                    L.Pay.insufficientFunds
                         .replace("{currencycolor}", currency.color.toString())
                         .replace("{currency}", currency.plural)
                 )
-                return@Runnable
+                return@doAsync
             }
 
             val event = PayEvent(currency, playerAccount, receiverAccount, amount)
-            StickyPlugin.doSync(Runnable {
+
+            StickyWallet.doSync {
                 Bukkit.getPluginManager().callEvent(event)
-            })
-            if (event.isCancelled) {
-                sender.sendMessage("${L.prefix}${ChatColor.RED}Pay event was canceled!")
-                return@Runnable
             }
 
-            val accountBal = playerAccount.getBalance(currency) - amount
-            val receiverBal = receiverAccount.getBalance(currency) + amount
+            if (event.isCancelled) {
+                sender.sendMessage("${L.prefix}${ChatColor.RED}Pay event was canceled!")
+                return@doAsync
+            }
 
-            playerAccount.modifyBalance(currency, accountBal, true)
-            receiverAccount.modifyBalance(currency, receiverBal, true)
-            plugin.economyLogger.log("""
+            val accountBal = playerAccount.getBalanceForCurrency(currency) - amount
+            val receiverBal = receiverAccount.getBalanceForCurrency(currency) + amount
+
+            playerAccount.modifyCurrencyBalance(currency, accountBal, true)
+            receiverAccount.modifyCurrencyBalance(currency, receiverBal, true)
+            pluginInstance.economyLogger.info(
+                """
                 [PAYMENT]
                 ${playerAccount.displayName} paid ${receiverAccount.displayName} ${currency.format(amount)}
                 New Balances:
-                ${playerAccount.displayName} -> ${currency.format(accountBal)}
-                ${receiverAccount.displayName} -> ${currency.format(receiverBal)}
-            """.trimIndent())
+                  ${playerAccount.displayName} -> ${currency.format(accountBal)}
+                  ${receiverAccount.displayName} -> ${currency.format(receiverBal)}
+            """.trimIndent()
+            )
 
             Bukkit.getPlayer(receiverAccount.uuid)?.sendMessage(
-                L.paidMessage
+                L.Pay.paid
                     .replace("{currencycolor}", currency.color.toString())
                     .replace("{amount}", currency.format(amount))
                     .replace("{player}", sender.name)
             )
 
             sender.sendMessage(
-                L.payerMessage
+                L.Pay.payer
                     .replace("{currencycolor}", currency.color.toString())
                     .replace("{amount}", currency.format(amount))
                     .replace("{player}", receiverAccount.displayName)
             )
-        })
+        }
         return true
     }
 
@@ -160,8 +148,8 @@ class PayCommand : TabExecutor {
 
         // ?Currency
         if (args.size == 3) {
-            val currencyKeys = plugin.currencyManager.currencies.map { it.singular }.toMutableList()
-            currencyKeys.addAll(plugin.currencyManager.currencies.map { it.plural })
+            val currencyKeys = pluginInstance.currencyStore.currencies.map { it.singular }.toMutableList()
+            currencyKeys.addAll(pluginInstance.currencyStore.currencies.map { it.plural })
 
             return currencyKeys.filter {
                 it.startsWith(args[2], true)

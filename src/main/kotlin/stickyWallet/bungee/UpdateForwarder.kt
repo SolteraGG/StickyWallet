@@ -1,18 +1,18 @@
 package stickyWallet.bungee
 
 import com.google.common.io.ByteStreams
+import org.bukkit.Bukkit
+import org.bukkit.entity.Player
+import org.bukkit.plugin.messaging.PluginMessageListener
+import stickyWallet.StickyWallet
+import stickyWallet.configs.PluginConfiguration
+import stickyWallet.interfaces.UsePlugin
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 import java.io.IOException
 import java.util.UUID
-import org.bukkit.Bukkit
-import org.bukkit.entity.Player
-import org.bukkit.plugin.messaging.PluginMessageListener
-import stickyWallet.StickyPlugin
-import stickyWallet.utils.ServerUtils
 
-class UpdateForwarder(private val plugin: StickyPlugin) : PluginMessageListener {
-
+object UpdateForwarder : PluginMessageListener, UsePlugin {
     private val channelName = "StickyWallet Data Channel"
 
     override fun onPluginMessageReceived(channel: String, player: Player, message: ByteArray) {
@@ -24,27 +24,27 @@ class UpdateForwarder(private val plugin: StickyPlugin) : PluginMessageListener 
         if (subChannel == channelName) {
             val (type, name) = dataIn.readUTF().split(",")
 
-            if (plugin.debug) ServerUtils.log("$channelName received $type => $name")
+            logIfEnabled("$channelName received $type => $name")
 
-            when (type) {
+            when (type.toLowerCase()) {
                 "currency" -> {
                     val uuid = UUID.fromString(name)
-                    val currency = plugin.currencyManager.getCurrency(uuid)
+                    val currency = pluginInstance.currencyStore.getCurrency(uuid)
 
                     if (currency != null) {
-                        try {
-                            plugin.dataStore.updateCurrencyLocally(currency)
-                        } catch (_: Exception) {
-                            // Ignore error
+                        StickyWallet.doAsync {
+                            pluginInstance.dataHandler.updateCachedCurrency(currency)
                         }
-                        if (plugin.debug) ServerUtils.log("$channelName: Updated currency ${currency.plural} ($name)")
+                        logIfEnabled("$channelName: Updated currency ${currency.plural} ($name)")
                     }
                 }
                 "account" -> {
                     val uuid = UUID.fromString(name)
-                    plugin.accountManager.removeAccount(uuid)
-                    StickyPlugin.doAsync(Runnable { plugin.dataStore.loadAccount(uuid) })
-                    if (plugin.debug) ServerUtils.log("$channelName: Account $name reloaded")
+                    StickyWallet.doAsync {
+                        pluginInstance.accountStore.removeCachedAccount(uuid)
+                        pluginInstance.dataHandler.loadAccount(uuid)
+                    }
+                    logIfEnabled("$channelName: Account $name reloaded")
                 }
             }
         }
@@ -59,7 +59,7 @@ class UpdateForwarder(private val plugin: StickyPlugin) : PluginMessageListener 
         val messageBytes = ByteArrayOutputStream()
         val messageOut = DataOutputStream(messageBytes)
         try {
-            messageOut.writeUTF("$type,$name")
+            messageOut.writeUTF("${type.toLowerCase()},$name")
         } catch (ex: IOException) {
             ex.printStackTrace()
         }
@@ -67,6 +67,10 @@ class UpdateForwarder(private val plugin: StickyPlugin) : PluginMessageListener 
         out.write(messageBytes.toByteArray())
 
         Bukkit.getOnlinePlayers().firstOrNull()
-            ?.sendPluginMessage(plugin, "BungeeCord", out.toByteArray())
+            ?.sendPluginMessage(pluginInstance, "BungeeCord", out.toByteArray())
+    }
+
+    private fun logIfEnabled(message: String) {
+        if (PluginConfiguration.DebugSettings.logsEnabled) pluginInstance.logger.info(message)
     }
 }

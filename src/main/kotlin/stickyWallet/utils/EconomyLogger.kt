@@ -1,5 +1,7 @@
 package stickyWallet.utils
 
+import stickyWallet.StickyWallet
+import stickyWallet.interfaces.UsePlugin
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -8,11 +10,9 @@ import java.io.IOException
 import java.io.PrintWriter
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-import stickyWallet.StickyPlugin
 
-class EconomyLogger(private val plugin: StickyPlugin) {
-
-    private val folder = File("${plugin.dataFolder}${File.separator}logs")
+object EconomyLogger : UsePlugin {
+    private val folder = File("${pluginInstance.dataFolder}${File.separator}logs")
     private val latest: File
     private val toAdd: MutableSet<String> = mutableSetOf()
     @Volatile
@@ -35,7 +35,7 @@ class EconomyLogger(private val plugin: StickyPlugin) {
     private fun zipAndReplace() {
         zipping = true
 
-        StickyPlugin.doAsync(Runnable {
+        StickyWallet.doAsync {
             try {
                 val date = TimeUtils.date()
 
@@ -64,7 +64,7 @@ class EconomyLogger(private val plugin: StickyPlugin) {
                 fis.close()
                 fos.close()
                 latest.delete()
-                if (!plugin.isDisabling) {
+                if (!pluginInstance.isDisabling) {
                     latest.createNewFile()
                     val writer = PrintWriter(FileWriter(latest, true))
                     toAdd.forEach { writer.println(it) }
@@ -75,14 +75,14 @@ class EconomyLogger(private val plugin: StickyPlugin) {
             } catch (ex: Exception) {
                 ex.printStackTrace()
             }
-        })
+        }
     }
 
-    fun log(message: String) {
+    fun info(message: String) {
         try {
             val builder = StringBuilder()
             appendDate(builder)
-            builder.append("[Economy Log] ").append(message)
+            builder.append("[Info] ").append(message)
             writeToFile(builder.toString())
         } catch (ex: IOException) {
             ex.printStackTrace()

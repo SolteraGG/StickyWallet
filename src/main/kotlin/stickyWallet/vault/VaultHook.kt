@@ -1,19 +1,17 @@
 package stickyWallet.vault
 
-import java.util.UUID
-import kotlin.collections.ArrayList
-import kotlin.properties.Delegates
 import net.milkbowl.vault.economy.AbstractEconomy
 import net.milkbowl.vault.economy.EconomyResponse
 import org.bukkit.OfflinePlayer
-import stickyWallet.StickyPlugin
-import stickyWallet.utils.ServerUtils
+import stickyWallet.interfaces.UsePlugin
+import java.util.UUID
+import kotlin.properties.Delegates
 
-class VaultHook : AbstractEconomy() {
+class VaultHook : AbstractEconomy(), UsePlugin {
 
     override fun getBanks(): MutableList<String> = ArrayList()
 
-    override fun getName() = "DDD Pawllet"
+    override fun getName() = "ddd Wallet"
 
     override fun isBankOwner(name: String?, playerName: String?) = EconomyResponse(
         0.0,
@@ -58,7 +56,7 @@ class VaultHook : AbstractEconomy() {
     )
 
     override fun currencyNameSingular() =
-        StickyPlugin.instance.currencyManager.getDefaultCurrency()?.singular ?: "Unknown"
+        pluginInstance.currencyStore.getDefaultCurrency()?.singular ?: "Unknown"
 
     override fun bankHas(name: String?, amount: Double) = EconomyResponse(
         0.0,
@@ -67,7 +65,7 @@ class VaultHook : AbstractEconomy() {
         "StickyWallet does not support bank accounts"
     )
 
-    override fun currencyNamePlural() = StickyPlugin.instance.currencyManager.getDefaultCurrency()?.plural ?: "Unknown"
+    override fun currencyNamePlural() = pluginInstance.currencyStore.getDefaultCurrency()?.plural ?: "Unknown"
 
     override fun isEnabled() = true
 
@@ -81,7 +79,7 @@ class VaultHook : AbstractEconomy() {
     )
 
     override fun format(amount: Double) =
-        StickyPlugin.instance.currencyManager.getDefaultCurrency()?.format(amount) ?: amount.toString()
+        pluginInstance.currencyStore.getDefaultCurrency()?.format(amount) ?: amount.toString()
 
     override fun hasBankSupport() = false
 
@@ -94,15 +92,15 @@ class VaultHook : AbstractEconomy() {
     override fun createPlayerAccount(playerName: String?, worldName: String?): Boolean = false
 
     override fun has(playerName: String, amount: Double): Boolean {
-        if (StickyPlugin.instance.loggingTransactions) ServerUtils.log("Looking up if player $playerName has $amount money")
-        val user = StickyPlugin.instance.accountManager.getAccount(playerName)
+        pluginInstance.logger.logIfTransactionLogEnabled("Looking up if player $playerName has $amount money")
+        val user = pluginInstance.accountStore.getAccount(playerName)
         if (user != null) return user.hasEnough(amount)
         return false
     }
 
     override fun has(player: OfflinePlayer, amount: Double): Boolean {
-        if (StickyPlugin.instance.loggingTransactions) ServerUtils.log("Looking up if player ${player.name} (${player.uniqueId}) has $amount money")
-        val user = StickyPlugin.instance.accountManager.getAccount(player.uniqueId)
+        pluginInstance.logger.logIfTransactionLogEnabled("Looking up if player ${player.name} (${player.uniqueId}) has $amount money")
+        val user = pluginInstance.accountStore.getAccount(player.uniqueId)
         if (user != null) return user.hasEnough(amount)
         return false
     }
@@ -112,13 +110,13 @@ class VaultHook : AbstractEconomy() {
     override fun has(player: OfflinePlayer, worldName: String?, amount: Double): Boolean = has(player, amount)
 
     override fun hasAccount(playerName: String): Boolean {
-        if (StickyPlugin.instance.loggingTransactions) ServerUtils.log("Looking up if player $playerName exists")
-        return StickyPlugin.instance.accountManager.getAccount(playerName) != null
+        pluginInstance.logger.logIfTransactionLogEnabled("Looking up if player $playerName exists")
+        return pluginInstance.accountStore.getAccount(playerName) != null
     }
 
     override fun hasAccount(player: OfflinePlayer): Boolean {
-        if (StickyPlugin.instance.loggingTransactions) ServerUtils.log("Looking up if player ${player.name} (${player.uniqueId}) exists")
-        return StickyPlugin.instance.accountManager.getAccount(player.uniqueId) != null
+        pluginInstance.logger.logIfTransactionLogEnabled("Looking up if player ${player.name} (${player.uniqueId}) exists")
+        return pluginInstance.accountStore.getAccount(player.uniqueId) != null
     }
 
     override fun hasAccount(playerName: String, worldName: String?): Boolean = hasAccount(playerName)
@@ -126,21 +124,21 @@ class VaultHook : AbstractEconomy() {
     override fun hasAccount(player: OfflinePlayer, worldName: String?): Boolean = hasAccount(player)
 
     override fun getBalance(playerName: String): Double {
-        if (StickyPlugin.instance.loggingTransactions) ServerUtils.log("Looking up players' $playerName balance")
+        pluginInstance.logger.logIfTransactionLogEnabled("Looking up players' $playerName balance")
 
-        val acc = StickyPlugin.instance.accountManager.getAccount(playerName)
-        val currency = StickyPlugin.instance.currencyManager.getDefaultCurrency()
+        val acc = pluginInstance.accountStore.getAccount(playerName)
+        val currency = pluginInstance.currencyStore.getDefaultCurrency()
 
-        return currency?.let { acc?.getBalance(it) } ?: 0.0
+        return currency?.let { acc?.getBalanceForCurrency(it) } ?: 0.0
     }
 
     override fun getBalance(player: OfflinePlayer): Double {
-        if (StickyPlugin.instance.loggingTransactions) ServerUtils.log("Looking up players' ${player.name} (${player.uniqueId}) balance")
+        pluginInstance.logger.logIfTransactionLogEnabled("Looking up players' ${player.name} (${player.uniqueId}) balance")
 
-        val acc = StickyPlugin.instance.accountManager.getAccount(player.uniqueId)
-        val currency = StickyPlugin.instance.currencyManager.getDefaultCurrency()
+        val acc = pluginInstance.accountStore.getAccount(player.uniqueId)
+        val currency = pluginInstance.currencyStore.getDefaultCurrency()
 
-        return currency?.let { acc?.getBalance(it) } ?: 0.0
+        return currency?.let { acc?.getBalanceForCurrency(it) } ?: 0.0
     }
 
     override fun getBalance(playerName: String, world: String?): Double = getBalance(playerName)
@@ -148,12 +146,12 @@ class VaultHook : AbstractEconomy() {
     override fun getBalance(player: OfflinePlayer, world: String?): Double = getBalance(player)
 
     override fun withdrawPlayer(player: OfflinePlayer, amount: Double): EconomyResponse {
-        if (StickyPlugin.instance.loggingTransactions) ServerUtils.log("Parsing withdraw for player ${player.name} (${player.uniqueId}), need to remove: $amount")
+        pluginInstance.logger.logIfTransactionLogEnabled("Parsing withdraw for player ${player.name} (${player.uniqueId}), need to remove: $amount")
         return sharedWithdrawPlayer(player.uniqueId.toString(), amount, player.name!!, true)
     }
 
     override fun withdrawPlayer(playerName: String, amount: Double): EconomyResponse {
-        if (StickyPlugin.instance.loggingTransactions) ServerUtils.log("Parsing withdraw for player $playerName, need to remove: $amount")
+        pluginInstance.logger.logIfTransactionLogEnabled("Parsing withdraw for player $playerName, need to remove: $amount")
         return sharedWithdrawPlayer(playerName, amount, playerName)
     }
 
@@ -182,12 +180,12 @@ class VaultHook : AbstractEconomy() {
         var error: String? = null
 
         val user = if (uuid) {
-            StickyPlugin.instance.accountManager.getAccount(UUID.fromString(input))
+            pluginInstance.accountStore.getAccount(UUID.fromString(input))
         } else {
-            StickyPlugin.instance.accountManager.getAccount(input)
+            pluginInstance.accountStore.getAccount(input)
         }
 
-        val currency = StickyPlugin.instance.currencyManager.getDefaultCurrency()
+        val currency = pluginInstance.currencyStore.getDefaultCurrency()
 
         if (currency != null && user != null) {
             if (user.withdraw(currency, amount)) {
@@ -195,7 +193,7 @@ class VaultHook : AbstractEconomy() {
             } else {
                 error = "Could not withdraw $amount from $playerName because they don't have enough funds"
             }
-            balance = user.getBalance(currency)
+            balance = user.getBalanceForCurrency(currency)
         } else {
             balance = 0.0
             error =
@@ -206,12 +204,12 @@ class VaultHook : AbstractEconomy() {
     }
 
     override fun depositPlayer(player: OfflinePlayer, amount: Double): EconomyResponse {
-        if (StickyPlugin.instance.loggingTransactions) ServerUtils.log("Parsing deposit for player ${player.name} (${player.uniqueId}), need to add: $amount")
+        pluginInstance.logger.logIfTransactionLogEnabled("Parsing deposit for player ${player.name} (${player.uniqueId}), need to add: $amount")
         return sharedDepositPlayer(player.uniqueId.toString(), amount, player.name!!, true)
     }
 
     override fun depositPlayer(playerName: String, amount: Double): EconomyResponse {
-        if (StickyPlugin.instance.loggingTransactions) ServerUtils.log("Parsing deposit for player $playerName, need to add: $amount")
+        pluginInstance.logger.logIfTransactionLogEnabled("Parsing deposit for player $playerName, need to add: $amount")
         return sharedDepositPlayer(playerName, amount, playerName)
     }
 
@@ -240,12 +238,12 @@ class VaultHook : AbstractEconomy() {
         var error: String? = null
 
         val user = if (uuid) {
-            StickyPlugin.instance.accountManager.getAccount(UUID.fromString(input))
+            pluginInstance.accountStore.getAccount(UUID.fromString(input))
         } else {
-            StickyPlugin.instance.accountManager.getAccount(input)
+            pluginInstance.accountStore.getAccount(input)
         }
 
-        val currency = StickyPlugin.instance.currencyManager.getDefaultCurrency()
+        val currency = pluginInstance.currencyStore.getDefaultCurrency()
 
         if (currency != null && user != null) {
             if (user.deposit(currency, amount)) {
@@ -253,7 +251,7 @@ class VaultHook : AbstractEconomy() {
             } else {
                 error = "Could not deposit $amount to $playerName because they are not allowed to receive currencies."
             }
-            balance = user.getBalance(currency)
+            balance = user.getBalanceForCurrency(currency)
         } else {
             balance = 0.0
             error =

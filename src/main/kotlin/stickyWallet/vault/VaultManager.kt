@@ -3,26 +3,24 @@ package stickyWallet.vault
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
 import org.bukkit.plugin.ServicePriority
-import stickyWallet.StickyPlugin
-import stickyWallet.utils.ServerUtils
+import stickyWallet.interfaces.UsePlugin
 
-class VaultManager(private val plugin: StickyPlugin) {
-
+object VaultManager : UsePlugin {
     private var hook: VaultHook? = null
 
     fun hook() {
         try {
             if (this.hook == null) this.hook = VaultHook()
 
-            if (plugin.currencyManager.getDefaultCurrency() == null) {
-                ServerUtils.log("No default currency found; Vault linking has been disabled")
+            if (pluginInstance.currencyStore.getDefaultCurrency() == null) {
+                pluginInstance.logger.info("No default currency found; Vault linking has been disabled")
                 return
             }
 
             val sm = Bukkit.getServicesManager()
-            sm.register(Economy::class.java, this.hook!!, plugin, ServicePriority.Highest)
+            sm.register(Economy::class.java, this.hook!!, pluginInstance, ServicePriority.Highest)
 
-            ServerUtils.log("Vault linking has been enabled")
+            pluginInstance.logger.info("Vault support has been enabled")
         } catch (e: Exception) {
             e.printStackTrace()
         }

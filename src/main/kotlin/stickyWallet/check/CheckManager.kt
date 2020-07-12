@@ -1,113 +1,97 @@
 package stickyWallet.check
 
-import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
-import stickyWallet.StickyPlugin
-import stickyWallet.currency.Currency
-import stickyWallet.nbt.NBTItem
-import stickyWallet.utils.StringUtils
+import org.bukkit.persistence.PersistentDataType
+import stickyWallet.configs.PluginConfiguration.CheckSettings
+import stickyWallet.currencies.Currency
+import stickyWallet.interfaces.UsePlugin
+import stickyWallet.utils.StringUtilities
 
-class CheckManager(private val plugin: StickyPlugin) {
-
+object CheckManager : UsePlugin {
     private val checkBaseItem: ItemStack
 
+    val checkValueKey = NamespacedKey(pluginInstance, "stickywallet.check.value")
+    val checkIssuerKey = NamespacedKey(pluginInstance, "stickywallet.check.issuer")
+    val checkCurrencyKey = NamespacedKey(pluginInstance, "stickywallet.check.currency")
+
     init {
-        val item = ItemStack(Material.valueOf(plugin.config.getString("check.material")!!), 1)
+        val item = ItemStack(CheckSettings.material, 1)
         val meta = item.itemMeta
-        meta.setDisplayName(StringUtils.colorize(plugin.config.getString("check.name")!!))
-        meta.lore = StringUtils.colorize(plugin.config.getStringList("check.lore"))
+        meta.setDisplayName(StringUtilities.colorize(CheckSettings.name))
+
         item.itemMeta = meta
-        item.addUnsafeEnchantment(Enchantment.VANISHING_CURSE, 1)
+        item.addUnsafeEnchantment(Enchantment.VANISHING_CURSE, 0)
         item.addItemFlags(ItemFlag.HIDE_ENCHANTS)
 
         this.checkBaseItem = item
     }
 
-    fun write(creatorName: String, currency: Currency, amount: Double): ItemStack? {
-        if (!currency.payable) return null
-
-        val finalCreatorName = if (creatorName == "CONSOLE") {
-            StringUtils.colorize(plugin.config.getString("check.console_name")!!)
+    fun write(creatorName: String, currency: Currency, amount: Double): ItemStack {
+        val finalCreatorName = if (creatorName.equals("console", true)) {
+            CheckSettings.consoleName
         } else creatorName
 
         val formatLore = mutableListOf<String>()
 
-        for (baseLore in this.checkBaseItem.itemMeta.lore!!) {
-            formatLore.add(
-                baseLore.replace("{value}", currency.format(amount))
-                    .replace("{player}", finalCreatorName)
-            )
+        val loreToParse = if (creatorName.equals("console", true)) {
+            CheckSettings.consoleLore
+        } else {
+            CheckSettings.lore
         }
 
-        val ret = this.checkBaseItem.clone()
-        val nbt = NBTItem(ret)
-        val meta = nbt.bukkitItem.itemMeta
+        formatLore.addAll(
+            loreToParse.map {
+                StringUtilities.colorize(
+                    it
+                        .replace("{value}", currency.format(amount))
+                        .replace("{player}", finalCreatorName)
+                )
+            }
+        )
+
+        val checkItem = this.checkBaseItem.clone()
+        val meta = checkItem.itemMeta
+
         meta.lore = formatLore
-        nbt.bukkitItem.itemMeta = meta
-        nbt.setString(nbtIssuer, creatorName)
-        nbt.setString(nbtCurrency, currency.plural)
-        nbt.setString(nbtValue, amount.toString())
 
-        nbt.setBoolean(nbtNotSellable, true)
+        val store = meta.persistentDataContainer
+        store.set(checkIssuerKey, PersistentDataType.STRING, finalCreatorName)
+        store.set(checkCurrencyKey, PersistentDataType.STRING, currency.plural)
+        store.set(checkValueKey, PersistentDataType.DOUBLE, amount)
 
-        return nbt.bukkitItem
+        checkItem.itemMeta = meta
+
+        return checkItem
     }
 
-    fun isValid(itemStack: NBTItem): Boolean {
-        if (itemStack.bukkitItem.type != this.checkBaseItem.type) return false
-        return try {
-            when {
-                itemStack.getString(nbtValue) == null -> false
-                itemStack.getString(nbtIssuer) == null -> false
-                itemStack.getString(nbtCurrency) == null -> false
-                // 'nbtNotSellable' was added later, so it does not make sense to enforce it's presence. It also has no effect on a check's validity.
-                else -> {
-                    val original = this.checkBaseItem.itemMeta.displayName
-                    val currentMeta = itemStack.bukkitItem.itemMeta ?: return false
+    fun getCurrencyForCheck(currency: String) = pluginInstance.currencyStore.getCurrency(currency)
 
-                    if (currentMeta.hasDisplayName() && currentMeta.displayName != original) return false
-                    if (currentMeta.hasLore() && currentMeta.lore?.size ?: 0 == checkBaseItem.lore?.size ?: -1) return true
+    fun validateCheck(item: ItemStack): CheckData? {
+        val meta = item.itemMeta
 
-                    false
-                }
-            }
-        } catch (_: Exception) {
-            false
-        }
+        val dataStore = meta.persistentDataContainer
+
+        val checkValue = dataStore.get(checkValueKey, PersistentDataType.DOUBLE)
+        val checkIssuer = dataStore.get(checkIssuerKey, PersistentDataType.STRING)
+        val checkCurrency = dataStore.get(checkCurrencyKey, PersistentDataType.STRING)
+
+        if (checkValue == null || checkValue <= 0.0) return null
+        if (checkIssuer == null) return null
+        if (checkCurrency == null || !pluginInstance.currencyStore.currencyExists(checkCurrency)) return null
+
+        return CheckData(
+            checkValue,
+            checkCurrency,
+            checkIssuer
+        )
     }
 
-    fun getChequeValue(itemStack: NBTItem): Double {
-        return try {
-            when {
-                itemStack.getString(nbtValue) == null -> -1.0
-                itemStack.getString(nbtIssuer) == null -> -1.0
-                itemStack.getString(nbtCurrency) == null -> -1.0
-                else -> itemStack.getString(nbtCurrency)!!.toDouble()
-            }
-        } catch (_: Exception) {
-            0.0
-        }
-    }
-
-    fun getCurrencyForCheck(itemStack: NBTItem): Currency? {
-        return try {
-            when {
-                itemStack.getString(nbtValue) == null -> this.plugin.currencyManager.getDefaultCurrency()
-                itemStack.getString(nbtIssuer) == null -> this.plugin.currencyManager.getDefaultCurrency()
-                itemStack.getString(nbtCurrency) == null -> this.plugin.currencyManager.getDefaultCurrency()
-                else -> this.plugin.currencyManager.getCurrency(itemStack.getString(nbtCurrency)!!)
-            }
-        } catch (_: Exception) {
-            this.plugin.currencyManager.getDefaultCurrency()
-        }
-    }
-
-    companion object {
-        const val nbtIssuer = "issuer"
-        const val nbtValue = "value"
-        const val nbtCurrency = "currency"
-        const val nbtNotSellable = "notsellable"
-    }
+    data class CheckData(
+        val value: Double,
+        val currency: String,
+        val issuer: String
+    )
 }

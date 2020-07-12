@@ -5,62 +5,62 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
 import org.bukkit.entity.Player
-import stickyWallet.StickyPlugin
+import stickyWallet.StickyWallet
 import stickyWallet.accounts.Account
-import stickyWallet.files.L
+import stickyWallet.configs.L
+import stickyWallet.interfaces.UsePlugin
 import stickyWallet.utils.Permissions
 
-class BalanceCommand : TabExecutor {
-
-    private val plugin = StickyPlugin.instance
-
+class BalanceCommand : TabExecutor, UsePlugin {
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
-        StickyPlugin.doAsync(Runnable {
+        StickyWallet.doAsync {
             if (!sender.hasPermission(Permissions.COMMAND_BALANCE)) {
                 sender.sendMessage(L.noPermissions)
-                return@Runnable
+                return@doAsync
             }
 
             val account: Account? = if (args.isEmpty() && sender is Player) {
-                plugin.accountManager.getAccount(sender)
+                pluginInstance.accountStore.getAccount(sender)
             } else if (sender.hasPermission(Permissions.COMMAND_BALANCE_OTHER) && args.size == 1) {
-                plugin.accountManager.getAccount(args[0])
+                pluginInstance.accountStore.getAccount(args[0])
             } else {
                 sender.sendMessage(L.noPermissions)
-                return@Runnable
+                return@doAsync
             }
 
             if (account == null) {
                 sender.sendMessage(L.playerDoesNotExist)
-                return@Runnable
+                return@doAsync
             }
 
-            when (plugin.currencyManager.currencies.size) {
+            when (pluginInstance.currencyStore.currencies.size) {
                 0 -> sender.sendMessage(L.noDefaultCurrency)
                 1 -> {
-                    val currency = plugin.currencyManager.getDefaultCurrency()
+                    val currency = pluginInstance.currencyStore.getDefaultCurrency()
                     if (currency == null) {
-                        sender.sendMessage(L.noBalance.replace("{player}", account.nickname!!))
+                        sender.sendMessage(L.Balance.none.replace("{player}", account.playerName!!))
                     } else {
                         sender.sendMessage(
-                            L.balance.replace("{player}", account.displayName)
+                            L.Balance.currennt
+                                .replace("{player}", account.displayName)
                                 .replace("{currencycolor}", currency.color.toString())
-                                .replace("{balance}", currency.format(account.getBalance(currency)))
+                                .replace("{balance}", currency.format(account.getBalanceForCurrency(currency)))
                         )
                     }
                 }
                 else -> {
-                    sender.sendMessage(L.multipleBalance.replace("{player}", account.displayName))
-                    plugin.currencyManager.currencies.forEach {
-                        val balance = account.getBalance(it)
+                    sender.sendMessage(L.Balance.multipleHeader.replace("{player}", account.displayName))
+                    pluginInstance.currencyStore.currencies.forEach {
+                        val balance = account.getBalanceForCurrency(it)
                         sender.sendMessage(
-                            L.balanceList.replace("{currencycolor}", it.color.toString())
+                            L.Balance.multipleEntry
+                                .replace("{currencycolor}", it.color.toString())
                                 .replace("{format}", it.format(balance))
                         )
                     }
                 }
             }
-        })
+        }
 
         return true
     }
@@ -71,6 +71,7 @@ class BalanceCommand : TabExecutor {
         alias: String,
         args: Array<out String>
     ): MutableList<String> {
+        // Possible accounts
         if (args.size == 1)
             return Bukkit.getOnlinePlayers().map {
                 it.name

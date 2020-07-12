@@ -1,75 +1,137 @@
 package stickyWallet.accounts
 
-import java.util.UUID
-import kotlin.math.round
 import org.bukkit.Bukkit
-import stickyWallet.StickyPlugin
-import stickyWallet.currency.Currency
+import stickyWallet.StickyWallet
+import stickyWallet.configs.PluginConfiguration
+import stickyWallet.currencies.Currency
 import stickyWallet.events.ConversionEvent
 import stickyWallet.events.TransactionEvent
-import stickyWallet.utils.ServerUtils
+import stickyWallet.interfaces.UsePlugin
 import stickyWallet.utils.TransactionType
+import java.util.UUID
+import kotlin.math.round
 
-data class Account(val uuid: UUID, var nickname: String?) {
-
-    val currencyBalances = mutableMapOf<Currency, Double>()
-    var canReceiveCurrency = true
+open class Account(
+    val uuid: UUID,
+    var playerName: String?
+) : UsePlugin {
+    val balances = mutableMapOf<Currency, Double>()
 
     val displayName
-        get() = nickname ?: uuid.toString()
+        get() = playerName ?: uuid.toString()
 
-    fun withdraw(currency: Currency, amount: Double): Boolean {
+    fun getBalanceForCurrency(name: String) = balances.entries
+        .find { (currency) -> currency.nameEquals(name) }
+        ?.component2() ?: 0.0
+
+    fun getBalanceForCurrency(currency: Currency) = if (currency in balances) {
+        balances[currency]!!
+    } else {
+        currency.defaultBalance
+    }
+
+    open fun hasEnough(currency: Currency, amount: Double) = getBalanceForCurrency(currency) >= amount
+    open fun hasEnough(amount: Double) = pluginInstance.currencyStore.getDefaultCurrency()
+        ?.let { hasEnough(it, amount) } ?: false
+
+    fun modifyCurrencyBalance(currency: Currency, amount: Double, save: Boolean = false) {
+        balances[currency] = amount
+
+        if (save) {
+            pluginInstance.dataHandler.saveAccount(this)
+        }
+    }
+
+    open fun withdraw(currency: Currency, amount: Double): Boolean {
         if (!hasEnough(currency, amount)) return false
 
-        val event = TransactionEvent(currency, this, amount, TransactionType.WITHDRAW)
-        StickyPlugin.doSync(Runnable {
+        val event = TransactionEvent(
+            currency,
+            this,
+            amount,
+            TransactionType.SET
+        )
+
+        StickyWallet.doSync {
             Bukkit.getPluginManager().callEvent(event)
-        })
+        }
+
         if (event.isCancelled) return false
 
-        val finalAmount = getBalance(currency) - amount
-        modifyBalance(currency, finalAmount, true)
-        StickyPlugin.instance.economyLogger.log("""
+        val finalAmount = getBalanceForCurrency(currency) - amount
+        modifyCurrencyBalance(currency, finalAmount, save = true)
+
+        pluginInstance.economyLogger.info("""
             [WITHDRAW] Account: $displayName
-            Withdrawn: ${currency.format(amount)}
-            Total: ${currency.format(finalAmount)}
+              Withdrawn: ${currency.format(amount)}
+              Total: ${currency.format(finalAmount)}
         """.trimIndent())
         return true
     }
 
     fun deposit(currency: Currency, amount: Double): Boolean {
-        if (!canReceiveCurrency) return false
+        val event = TransactionEvent(
+            currency,
+            this,
+            amount,
+            TransactionType.DEPOSIT
+        )
 
-        val event = TransactionEvent(currency, this, amount, TransactionType.DEPOSIT)
-        StickyPlugin.doSync(Runnable {
+        StickyWallet.doSync {
             Bukkit.getPluginManager().callEvent(event)
-        })
+        }
+
         if (event.isCancelled) return false
 
-        val finalAmount = getBalance(currency) + amount
-        modifyBalance(currency, finalAmount, true)
-        StickyPlugin.instance.economyLogger.log("""
+        val finalAmount = getBalanceForCurrency(currency) + amount
+        modifyCurrencyBalance(currency, finalAmount, save = true)
+        pluginInstance.economyLogger.info("""
             [DEPOSIT] Account: $displayName
-            Deposited: ${currency.format(amount)}
-            Total: ${currency.format(finalAmount)}
+              Deposited: ${currency.format(amount)}
+              Total: ${currency.format(finalAmount)}       
         """.trimIndent())
+        return true
+    }
+
+    fun set(currency: Currency, amount: Double): Boolean {
+        val event = TransactionEvent(
+            currency,
+            this,
+            amount,
+            TransactionType.SET
+        )
+
+        StickyWallet.doSync {
+            Bukkit.getPluginManager().callEvent(event)
+        }
+
+        if (event.isCancelled) return false
+
+        modifyCurrencyBalance(currency, amount, save = true)
+        pluginInstance.economyLogger.info("""
+            [BALANCE SET] Account: $displayName
+              New Balance: ${currency.format(amount)}
+        """.trimIndent())
+
         return true
     }
 
     fun convert(exchanged: Currency, exchangeAmount: Double, received: Currency, amount: Double): Boolean {
         val event = ConversionEvent(exchanged, received, this, exchangeAmount, amount)
-        StickyPlugin.doSync(Runnable {
+
+        StickyWallet.doSync {
             Bukkit.getPluginManager().callEvent(event)
-        })
+        }
+
         if (event.isCancelled) return false
 
         if (amount != -1.0) {
-            val removed = getBalance(exchanged) - exchangeAmount
-            val added = getBalance(received) + amount
-            modifyBalance(exchanged, removed, false)
-            modifyBalance(received, added, false)
-            StickyPlugin.instance.dataStore.saveAccount(this)
-            StickyPlugin.instance.economyLogger.log("""
+            val removed = getBalanceForCurrency(exchanged) - exchangeAmount
+            val added = getBalanceForCurrency(received) + amount
+            modifyCurrencyBalance(exchanged, removed, save = false)
+            modifyCurrencyBalance(received, added, save = false)
+            pluginInstance.dataHandler.saveAccount(this)
+            pluginInstance.economyLogger.info("""
                 [CONVERSION - Custom Amount] Account: $displayName
                 Converted ${exchanged.format(exchangeAmount)} to ${received.format(amount)}
             """.trimIndent())
@@ -85,12 +147,12 @@ data class Account(val uuid: UUID, var nickname: String?) {
         }
 
         val finalAmount = round(exchangeAmount * rate)
-        val removed = getBalance(exchanged) - if (!receiveRate) {
+        val removed = getBalanceForCurrency(exchanged) - if (!receiveRate) {
             exchangeAmount
         } else {
             finalAmount
         }
-        val added = getBalance(received) + if (!receiveRate) {
+        val added = getBalanceForCurrency(received) + if (!receiveRate) {
             finalAmount
         } else {
             exchangeAmount
@@ -99,8 +161,8 @@ data class Account(val uuid: UUID, var nickname: String?) {
         if (!hasEnough(exchanged, if (!receiveRate) exchangeAmount else finalAmount))
             return false
 
-        if (StickyPlugin.instance.debug) {
-            ServerUtils.log("""
+        if (PluginConfiguration.DebugSettings.logsEnabled) {
+            pluginInstance.logger.info("""
                 Rate: $rate
                 Final Amount: $finalAmount
                 Removed amount: ${exchanged.format(removed)}
@@ -108,48 +170,14 @@ data class Account(val uuid: UUID, var nickname: String?) {
             """.trimIndent())
         }
 
-        modifyBalance(exchanged, removed, false)
-        modifyBalance(received, added, false)
-        StickyPlugin.instance.dataStore.saveAccount(this)
-        StickyPlugin.instance.economyLogger.log("""
+        modifyCurrencyBalance(exchanged, removed, false)
+        modifyCurrencyBalance(received, added, false)
+        pluginInstance.dataHandler.saveAccount(this)
+        pluginInstance.economyLogger.info("""
             [CONVERSION - Preset Rate] Account: $displayName
             Converted ${exchanged.format(exchangeAmount)} (rate: $rate) to ${received.format(amount)}
         """.trimIndent())
 
         return true
-    }
-
-    fun setBalance(currency: Currency, amount: Double) {
-        val event = TransactionEvent(currency, this, amount, TransactionType.SET)
-        StickyPlugin.doSync(Runnable {
-            Bukkit.getPluginManager().callEvent(event)
-        })
-        if (event.isCancelled) return
-
-        StickyPlugin.instance.economyLogger.log("""
-            [BALANCE SET] Account: $displayName
-            Total: ${currency.format(amount)}
-        """.trimIndent())
-        modifyBalance(currency, amount, true)
-    }
-
-    fun hasEnough(currency: Currency, amount: Double) = getBalance(currency) >= amount
-    fun hasEnough(amount: Double) = StickyPlugin.instance.currencyManager.getDefaultCurrency()?.let { hasEnough(it, amount) } ?: false
-
-    fun getBalance(identifier: String): Double =
-            currencyBalances.entries
-                    .find { (currency) ->
-                        currency.singular.equals(identifier, true) || currency.plural.equals(identifier, true)
-                    }?.component2() ?: -100.0
-
-    fun getBalance(currency: Currency): Double {
-        if (currency in currencyBalances) return currencyBalances[currency]!!
-        return currency.defaultBalance
-    }
-
-    fun modifyBalance(currency: Currency, amount: Double, save: Boolean = false) {
-        currencyBalances[currency] = amount
-        if (save)
-            StickyPlugin.instance.dataStore.saveAccount(this)
     }
 }

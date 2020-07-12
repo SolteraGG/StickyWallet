@@ -1,74 +1,78 @@
 package stickyWallet.commands
 
-import org.bukkit.Material
+import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
 import org.bukkit.entity.Player
-import stickyWallet.StickyPlugin
+import stickyWallet.accounts.ConsoleAccount
 import stickyWallet.check.CheckManager
-import stickyWallet.files.L
-import stickyWallet.nbt.NBTItem
+import stickyWallet.configs.L
+import stickyWallet.configs.PluginConfiguration.CheckSettings
+import stickyWallet.interfaces.UsePlugin
 import stickyWallet.utils.Permissions
-import stickyWallet.utils.StringUtils
+import stickyWallet.utils.StringUtilities
+import stickyWallet.utils.StringUtilities.colorize
 
-class CheckCommand : TabExecutor {
-
-    private val plugin = StickyPlugin.instance
+class CheckCommand : TabExecutor, UsePlugin {
     private val possibleArguments = listOf("redeem", "write")
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
-        if (sender !is Player) {
-            sender.sendMessage(L.noConsole)
-            return true
-        }
-
         if (!sender.hasPermission(Permissions.COMMAND_CHECK)) {
             sender.sendMessage(L.noPermissions)
             return true
         }
 
         if (args.isEmpty()) {
-            L.checkHelp(sender)
+            L.Check.sendUsage(sender)
             return true
         }
 
         when (args.size) {
             1 -> {
+                if (sender !is Player) {
+                    sender.sendMessage(L.noConsole)
+                    return true
+                }
+
                 if (!args[0].equals("redeem", true)) {
                     sender.sendMessage(L.unknownSubCommand)
                     return true
                 }
 
                 val itemInHand = sender.inventory.itemInMainHand
+                val itemInOffhand = sender.inventory.itemInOffHand
 
-                if (itemInHand.type != Material.valueOf(plugin.config.getString("check.material")!!.toUpperCase())) {
-                    sender.sendMessage(L.checkInvalid)
+                if (itemInHand.type != CheckSettings.material && itemInOffhand.type != CheckSettings.material) {
+                    sender.sendMessage(L.Check.invalid)
                     return true
                 }
 
-                val item = NBTItem(itemInHand)
-                val checkValue = item.getString(CheckManager.nbtValue)
-                val checkCurrency = item.getString(CheckManager.nbtCurrency)
+                val finalBukkitItem = if (itemInHand.type == CheckSettings.material) {
+                    itemInHand
+                } else {
+                    itemInOffhand
+                }
 
-                if (item.bukkitItem.itemMeta.hasDisplayName() && item.bukkitItem.itemMeta.hasLore() && checkValue == null && checkCurrency == null) {
-                    sender.sendMessage(L.checkInvalid)
+                val finalItem: CheckManager.CheckData? = when {
+                    itemInHand.type == CheckSettings.material -> CheckManager.validateCheck(itemInHand)
+                        ?: if (itemInOffhand.type == CheckSettings.material) {
+                            val valid2 = CheckManager.validateCheck(itemInOffhand)
+                            valid2
+                        } else null
+                    itemInOffhand.type == CheckSettings.material -> CheckManager.validateCheck(itemInOffhand)
+                    else -> null
+                }
+
+                if (finalItem == null) {
+                    sender.sendMessage(L.Check.invalid)
                     return true
                 }
 
-                if (!plugin.checkManager.isValid(item)) {
-                    sender.sendMessage(L.checkInvalid)
-                    return true
-                }
+                val (value, currency) = finalItem
 
-                if (checkValue == null && checkCurrency == null) {
-                    sender.sendMessage(L.checkInvalid)
-                    return true
-                }
-
-                val amount = checkValue!!.toDouble()
-                val userAccount = plugin.accountManager.getAccount(sender)
-                val currency = plugin.checkManager.getCurrencyForCheck(item)
+                val userAccount = pluginInstance.accountStore.getAccount(sender)
+                val finalCurrency = CheckManager.getCurrencyForCheck(currency)
 
                 // Sanity checks
                 if (userAccount == null) {
@@ -76,22 +80,22 @@ class CheckCommand : TabExecutor {
                     return true
                 }
 
-                if (currency == null) {
-                    sender.sendMessage(L.checkInvalid)
+                if (finalCurrency == null) {
+                    sender.sendMessage(L.Check.invalid)
                     return true
                 }
 
-                if (item.bukkitItem.amount > 1) {
-                    sender.inventory.itemInMainHand.amount = item.bukkitItem.amount - 1
+                if (finalBukkitItem.amount > 1) {
+                    sender.inventory.itemInMainHand.amount = finalBukkitItem.amount - 1
                 } else {
-                    sender.inventory.remove(item.bukkitItem)
+                    sender.inventory.remove(finalBukkitItem)
                 }
 
-                userAccount.deposit(currency, amount)
-                sender.sendMessage(L.checkRedeemed)
+                userAccount.deposit(finalCurrency, value)
+                sender.sendMessage(L.Check.redeemed)
                 return true
             }
-            2, 3 -> {
+            2, 3, 4 -> {
                 if (!args[0].equals("write", true)) {
                     sender.sendMessage(L.unknownSubCommand)
                     return true
@@ -99,8 +103,7 @@ class CheckCommand : TabExecutor {
 
                 val (_, rawAmount) = args
 
-                if (!StringUtils.validateInput(sender, rawAmount)) {
-                    sender.sendMessage(L.invalidAmount)
+                if (!StringUtilities.validateInput(sender, rawAmount)) {
                     return true
                 }
 
@@ -112,9 +115,9 @@ class CheckCommand : TabExecutor {
 
                 var noDefault = false
                 val currency = if (args.size == 3) {
-                    plugin.currencyManager.getCurrency(args[2])
+                    pluginInstance.currencyStore.getCurrency(args[2])
                 } else {
-                    val temp = plugin.currencyManager.getDefaultCurrency()
+                    val temp = pluginInstance.currencyStore.getDefaultCurrency()
                     if (temp == null) noDefault = true
                     temp
                 }
@@ -128,7 +131,12 @@ class CheckCommand : TabExecutor {
                     return true
                 }
 
-                val user = plugin.accountManager.getAccount(sender)
+                val user = if (sender is Player) {
+                    pluginInstance.accountStore.getAccount(sender)
+                } else {
+                    ConsoleAccount()
+                }
+
                 // Sanity check
                 if (user == null) {
                     sender.sendMessage(L.playerDoesNotExist)
@@ -136,20 +144,36 @@ class CheckCommand : TabExecutor {
                 }
 
                 if (user.hasEnough(amount)) {
-                    val item = plugin.checkManager.write(sender.name, currency, amount)
-                    if (item == null) {
-                        sender.sendMessage(L.currencyNotPayable)
-                        return true
-                    }
-
+                    val item = CheckManager.write(if (sender is Player) {
+                        sender.name
+                    } else {
+                        "console"
+                    }, currency, amount)
                     user.withdraw(currency, amount)
-                    if (sender.inventory.addItem(item).isNotEmpty()) {
-                        sender.world.dropItemNaturally(sender.location, item)
+
+                    if (sender !is Player) {
+                        val player = Bukkit.getOnlinePlayers().find { it.name == args[3] }
+
+                        if (player == null) {
+                            sender.sendMessage(L.Check.psstError)
+                            return true
+                        }
+
+                        player.sendActionBar(colorize("&4Hmm...you notice a mysterious item in your inventory.. What could it be?"))
+                        if (player.inventory.addItem(item).isNotEmpty()) {
+                            player.world.dropItemNaturally(player.location, item)
+                        }
+                        sender.sendMessage(L.Check.psstOk)
+                    } else {
+                        if (sender.inventory.addItem(item).isNotEmpty()) {
+                            sender.world.dropItemNaturally(sender.location, item)
+                        }
                     }
-                    sender.sendMessage(L.checkSuccess)
+                    sender.sendMessage(L.Check.success)
                 } else {
                     sender.sendMessage(
-                        L.insufficientFunds.replace("{currencycolor}", currency.color.toString())
+                        L.Pay.insufficientFunds
+                            .replace("{currencycolor}", currency.color.toString())
                             .replace("{currency}", currency.singular)
                     )
                 }
@@ -168,6 +192,22 @@ class CheckCommand : TabExecutor {
             return possibleArguments.filter {
                 it.startsWith(args[0], true)
             }.toMutableList()
+        }
+
+        // Currencies
+        if (args.size == 3 && args[0].equals("write", true)) {
+            val currencyKeys = pluginInstance.currencyStore.currencies.map { it.singular }.toMutableList()
+            currencyKeys.addAll(pluginInstance.currencyStore.currencies.map { it.plural })
+
+            return currencyKeys.filter {
+                it.startsWith(args[2], true)
+            }.toMutableList()
+        }
+
+        if (args.size == 4 && args[0].equals("write", true) && (sender.isOp || sender !is Player)) {
+            return Bukkit.getOnlinePlayers()
+                .map { it.name }
+                .toMutableList()
         }
 
         return mutableListOf()

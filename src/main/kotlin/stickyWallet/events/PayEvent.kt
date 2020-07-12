@@ -4,7 +4,7 @@ import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
 import org.bukkit.event.HandlerList
 import stickyWallet.accounts.Account
-import stickyWallet.currency.Currency
+import stickyWallet.currencies.Currency
 
 class PayEvent(
     val currency: Currency,

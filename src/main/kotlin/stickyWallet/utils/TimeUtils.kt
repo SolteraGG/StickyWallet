@@ -7,8 +7,8 @@ import java.util.TimeZone
 
 object TimeUtils {
 
-    private const val DATE_FORMAT_NOW = "dd.MM.yyyy HH:mm:ss"
-    private const val DATE_FORMAT_DAY = "dd.MM.yyyy"
+    private const val DATE_FORMAT_NOW = "yyyy.MM.dd HH:mm:ss"
+    private const val DATE_FORMAT_DAY = "yyyy.MM.dd"
 
     fun now(): String {
         val cal = Calendar.getInstance()

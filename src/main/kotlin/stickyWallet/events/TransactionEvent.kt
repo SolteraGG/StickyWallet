@@ -3,13 +3,12 @@ package stickyWallet.events
 import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
 import org.bukkit.event.HandlerList
-import stickyWallet.accounts.Account
-import stickyWallet.currency.Currency
+import stickyWallet.currencies.Currency
 import stickyWallet.utils.TransactionType
 
 class TransactionEvent(
     val currency: Currency,
-    val account: Account,
+    val account: stickyWallet.accounts.Account,
     val amount: Double,
     val type: TransactionType
 ) : Event(), Cancellable {
