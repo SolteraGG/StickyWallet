@@ -1,5 +1,9 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
 import kr.entree.spigradle.data.Load
+import kr.entree.spigradle.kotlin.codemc	
+import kr.entree.spigradle.kotlin.jitpack	
+import kr.entree.spigradle.kotlin.paper	
+import kr.entree.spigradle.kotlin.vault
 
 plugins {
     id("java")
