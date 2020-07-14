@@ -30,14 +30,15 @@ object PluginConfiguration : UsePlugin {
             check:
               - material: The material to use for the check item - list available here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html; default: "PAPER"
               - name    : The name of the check in the user's inventory; default: "&aBank Note"
-              - lore    : The lore of the check in the user's inventory; default: ["&7Worth: {value}.", "&7&oWritten by {player}"]
+              - lore    : The lore of the check in the user's inventory; default: ["&7Worth: {currencycolor}{value}.", "&7&oWritten by &6{player}"]
                 - "{value}" will be replaced with the check value and currency
                 - "{player}" will be replaced with the player that wrote this check
+                - "{currencycolor}" will be replaced with the currency color
               - consoleName: The name checks get when written by the console; default: "&kOwO &r&l&4The Master Itself &kOwO"
               - consoleLore: Same as "lore", except used when the console writes a check; default: ["&l&dGiven by &r&kOwO &r&l&4The Master Itself &kOwO&r&l&d; you should cherish it", "&7Worth: {value}."]
               
             integrations:
-              - vault: If VaultAPI support should be enabled; default: false
+              - vault: If VaultAPI support should be enabled; default: true
               
         """.trimIndent())
 
@@ -54,7 +55,7 @@ object PluginConfiguration : UsePlugin {
     //    START: Check
         addDefault(SettingsPaths.CheckMaterial, Material.PAPER.toString())
         addDefault(SettingsPaths.CheckName, "&aBank Note")
-        addDefault(SettingsPaths.CheckLore, listOf("&7Worth: {value}.", "&7&oWritten by {player}"))
+        addDefault(SettingsPaths.CheckLore, listOf("&7Worth: {currencycolor}{value}.", "&7&oWritten by &6{player}"))
         addDefault(SettingsPaths.CheckConsoleName, "&kOwO &r&l&4The Master Itself &kOwO")
         addDefault(
             SettingsPaths.CheckConsoleLore,

@@ -61,7 +61,7 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
                     .orderBy(BalancesTable.balance to SortOrder.DESC)
                     .limit(amount, offset = offset)
                     .map {
-                        Pair(it[AccountsTable.playerName], it[BalancesTable.balance])
+                        it[AccountsTable.playerName] to it[BalancesTable.balance]
                     }
             }
 
@@ -167,7 +167,7 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
                         (BalancesTable.currencyID inList pluginInstance.currencyStore.currencies.map { curr -> curr.uuid.toString() })
                     }
                         .map {
-                            Pair(pluginInstance.currencyStore.getCurrency(UUID.fromString(it[BalancesTable.currencyID])), it[BalancesTable.balance])
+                            pluginInstance.currencyStore.getCurrency(UUID.fromString(it[BalancesTable.currencyID])) to it[BalancesTable.balance]
                         }
                 }
 

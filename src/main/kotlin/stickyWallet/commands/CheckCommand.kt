@@ -86,11 +86,7 @@ class CheckCommand : TabExecutor, UsePlugin {
                     return true
                 }
 
-                if (finalBukkitItem.amount > 1) {
-                    sender.inventory.itemInMainHand.amount = finalBukkitItem.amount - 1
-                } else {
-                    sender.inventory.remove(finalBukkitItem)
-                }
+                finalBukkitItem.subtract()
 
                 userAccount.deposit(finalCurrency, value)
                 sender.sendMessage(L.Check.redeemed)

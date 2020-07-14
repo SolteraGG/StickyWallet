@@ -49,6 +49,7 @@ object CheckManager : UsePlugin {
                     it
                         .replace("{value}", currency.format(amount))
                         .replace("{player}", finalCreatorName)
+                        .replace("{currencycolor}", currency.color.toString())
                 )
             }
         )
@@ -71,6 +72,8 @@ object CheckManager : UsePlugin {
     fun getCurrencyForCheck(currency: String) = pluginInstance.currencyStore.getCurrency(currency)
 
     fun validateCheck(item: ItemStack): CheckData? {
+        if (item.type != CheckSettings.material) return null
+
         val meta = item.itemMeta
 
         val dataStore = meta.persistentDataContainer

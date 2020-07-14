@@ -5,6 +5,7 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.CraftItemEvent
 import org.bukkit.inventory.ItemStack
+import stickyWallet.StickyWallet
 import stickyWallet.check.CheckManager
 import stickyWallet.configs.L
 import stickyWallet.configs.PluginConfiguration
@@ -17,26 +18,28 @@ class CraftEvent : UsePlugin, Listener {
     fun onCraft(event: CraftItemEvent) {
         val matrix = event.inventory.matrix
 
-        val caughtItems = mutableListOf<ItemStack>()
+        var shouldAlert = false
 
         for (item in matrix) {
             // If there's nothing in the slot, continue
             if (item == null) continue
-            if (checkItemStackIsCheck(item)) caughtItems.add(item)
-        }
-
-        if (caughtItems.isNotEmpty()) {
-            caughtItems.forEach {
-                if (Random.nextDouble(0.0, 1.0) <= 0.15) {
+            if (checkItemStackIsCheck(item)) {
+                event.isCancelled = true
+                shouldAlert = true
+                if (Random.nextDouble(0.0, 100.0) <= 15.0) {
                     // Bye bye check
-                    event.whoClicked.inventory.remove(it)
+                    item.subtract()
                 }
             }
-            event.whoClicked.sendMessage(
-                colorize("${L.prefix}${PluginConfiguration.CheckSettings.noCraftingWithChecks}")
-            )
-            event.isCancelled = true
-            event.whoClicked.closeInventory()
+        }
+
+        if (shouldAlert) {
+            StickyWallet.doLater(2) {
+                event.whoClicked.closeInventory()
+                event.whoClicked.sendMessage(
+                    colorize("${L.prefix}${PluginConfiguration.CheckSettings.noCraftingWithChecks}")
+                )
+            }
         }
     }
 
