@@ -1,11 +1,11 @@
 package stickyWallet.sql
 
-import org.jetbrains.exposed.sql.ColumnType
 import java.math.BigDecimal
 import java.math.MathContext
+import org.jetbrains.exposed.sql.ColumnType
 
 class PostgresDecimal : ColumnType() {
-    override fun sqlType(): String  = "DECIMAL"
+    override fun sqlType(): String = "DECIMAL"
     override fun valueFromDB(value: Any): BigDecimal = when (value) {
         is BigDecimal -> value
         is Double -> value.toBigDecimal()

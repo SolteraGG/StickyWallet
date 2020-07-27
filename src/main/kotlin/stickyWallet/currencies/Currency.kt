@@ -1,9 +1,9 @@
 package stickyWallet.currencies
 
-import org.bukkit.ChatColor
-import stickyWallet.utils.NumberUtilities
 import java.math.BigDecimal
 import java.util.UUID
+import org.bukkit.ChatColor
+import stickyWallet.utils.NumberUtilities
 
 data class Currency(
     var uuid: UUID,

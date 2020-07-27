@@ -1,11 +1,11 @@
 package stickyWallet.events
 
+import java.math.BigDecimal
 import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
 import org.bukkit.event.HandlerList
 import stickyWallet.accounts.Account
 import stickyWallet.currencies.Currency
-import java.math.BigDecimal
 
 class PayEvent(
     val currency: Currency,

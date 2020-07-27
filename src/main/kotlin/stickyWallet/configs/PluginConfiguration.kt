@@ -147,9 +147,7 @@ object PluginConfiguration : UsePlugin {
             get() = pluginInstance.config.getBoolean(SettingsPaths.VaultIntegration, true)
     }
 
-    object Translations {
-
-    }
+    object Translations
 
 //    END: Field Definition
 }

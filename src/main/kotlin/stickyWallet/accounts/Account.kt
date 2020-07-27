@@ -1,5 +1,7 @@
 package stickyWallet.accounts
 
+import java.math.BigDecimal
+import java.util.UUID
 import org.bukkit.Bukkit
 import stickyWallet.StickyWallet
 import stickyWallet.configs.PluginConfiguration
@@ -8,8 +10,6 @@ import stickyWallet.events.ConversionEvent
 import stickyWallet.events.TransactionEvent
 import stickyWallet.interfaces.UsePlugin
 import stickyWallet.utils.TransactionType
-import java.math.BigDecimal
-import java.util.UUID
 
 open class Account(
     val uuid: UUID,
