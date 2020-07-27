@@ -1,5 +1,6 @@
 package stickyWallet.commands
 
+import java.math.BigDecimal
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.command.Command
@@ -12,7 +13,6 @@ import stickyWallet.currencies.Currency
 import stickyWallet.events.PayEvent
 import stickyWallet.interfaces.UsePlugin
 import stickyWallet.utils.Permissions
-import java.math.BigDecimal
 
 class PayCommand : TabExecutor, UsePlugin {
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {

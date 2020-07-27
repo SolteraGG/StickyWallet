@@ -1,7 +1,5 @@
 package stickyWallet.utils
 
-import stickyWallet.StickyWallet
-import stickyWallet.interfaces.UsePlugin
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -10,6 +8,8 @@ import java.io.IOException
 import java.io.PrintWriter
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import stickyWallet.StickyWallet
+import stickyWallet.interfaces.UsePlugin
 
 object EconomyLogger : UsePlugin {
     private val folder = File("${pluginInstance.dataFolder}${File.separator}logs")

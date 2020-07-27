@@ -1,5 +1,7 @@
 package stickyWallet.sql
 
+import java.math.BigDecimal
+import java.util.UUID
 import org.bukkit.ChatColor
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
@@ -22,8 +24,6 @@ import stickyWallet.interfaces.UsePlugin
 import stickyWallet.sql.tables.AccountsTable
 import stickyWallet.sql.tables.BalancesTable
 import stickyWallet.sql.tables.CurrenciesTable
-import java.math.BigDecimal
-import java.util.UUID
 
 object PostgresHandler : UsePlugin, DataHandler("postgres") {
     private lateinit var dbConnection: Database

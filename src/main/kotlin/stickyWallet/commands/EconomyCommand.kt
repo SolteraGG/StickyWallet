@@ -1,5 +1,6 @@
 package stickyWallet.commands
 
+import java.math.BigDecimal
 import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
@@ -10,7 +11,6 @@ import stickyWallet.configs.L
 import stickyWallet.currencies.Currency
 import stickyWallet.interfaces.UsePlugin
 import stickyWallet.utils.Permissions
-import java.math.BigDecimal
 
 class EconomyCommand : TabExecutor, UsePlugin {
     private val subCommands = listOf(
