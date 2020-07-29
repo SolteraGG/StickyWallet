@@ -87,6 +87,7 @@ class PlaceholderAPI : PlaceholderExpansion(), UsePlugin {
         } else {
             Triple(tagPieces[1] + "_compact", tagPieces[2].toLong(), tagPieces[3])
         }
+    }
 
         val currency = pluginInstance.currencyStore.getCurrency(currencyKey) ?: return "Unknown Currency"
 
