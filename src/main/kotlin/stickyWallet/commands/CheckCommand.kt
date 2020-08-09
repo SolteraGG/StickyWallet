@@ -1,5 +1,6 @@
 package stickyWallet.commands
 
+import java.math.BigDecimal
 import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
@@ -13,7 +14,6 @@ import stickyWallet.interfaces.UsePlugin
 import stickyWallet.utils.Permissions
 import stickyWallet.utils.StringUtilities
 import stickyWallet.utils.StringUtilities.colorize
-import java.math.BigDecimal
 
 class CheckCommand : TabExecutor, UsePlugin {
     private val possibleArguments = listOf("redeem", "write")

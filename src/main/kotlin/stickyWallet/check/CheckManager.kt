@@ -1,5 +1,6 @@
 package stickyWallet.check
 
+import java.math.BigDecimal
 import org.bukkit.NamespacedKey
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemFlag
@@ -9,7 +10,6 @@ import stickyWallet.configs.PluginConfiguration.CheckSettings
 import stickyWallet.currencies.Currency
 import stickyWallet.interfaces.UsePlugin
 import stickyWallet.utils.StringUtilities
-import java.math.BigDecimal
 
 object CheckManager : UsePlugin {
     private val checkBaseItem: ItemStack

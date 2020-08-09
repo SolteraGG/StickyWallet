@@ -1,9 +1,9 @@
 package stickyWallet.accounts
 
-import stickyWallet.configs.PluginConfiguration.CheckSettings
-import stickyWallet.currencies.Currency
 import java.math.BigDecimal
 import java.util.UUID
+import stickyWallet.configs.PluginConfiguration.CheckSettings
+import stickyWallet.currencies.Currency
 
 class ConsoleAccount : Account(
     UUID.fromString("ddd22521-4c13-4239-93a5-a976bcfc614f"),

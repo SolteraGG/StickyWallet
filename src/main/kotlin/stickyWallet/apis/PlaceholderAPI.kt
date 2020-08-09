@@ -1,5 +1,7 @@
 package stickyWallet.apis
 
+import java.math.BigDecimal
+import java.util.UUID
 import me.clip.placeholderapi.expansion.PlaceholderExpansion
 import org.bukkit.entity.Player
 import org.jetbrains.exposed.sql.SortOrder
@@ -9,8 +11,6 @@ import stickyWallet.accounts.Account
 import stickyWallet.currencies.Currency
 import stickyWallet.interfaces.UsePlugin
 import stickyWallet.sql.tables.BalancesTable
-import java.math.BigDecimal
-import java.util.UUID
 
 class PlaceholderAPI : PlaceholderExpansion(), UsePlugin {
 
@@ -42,28 +42,40 @@ class PlaceholderAPI : PlaceholderExpansion(), UsePlugin {
     }
 
     /**
-     * handles balance-<currency> and balance-formatted-<currency>
+     * Handles:
+     * - balance-<currency>
+     * - balance-compact-<currency>
+     * - balance-raw-<currency>
+     * - balance-rawcompact-<currency>
      */
     private fun parseBalanceTag(player: Player, tagPieces: List<String>): String? {
-        val (type, currency) = if (tagPieces.size == 1) {
-            Pair("normal", tagPieces[0])
+        val (currency, compact, raw) = if (tagPieces.size == 1) {
+            Triple(tagPieces[0], second = false, third = true)
         } else {
-            Pair("compact", tagPieces[1])
+            var toBeCompact = false
+            var toBeRaw = false
+
+            if (tagPieces[1].endsWith("compact", true)) {
+                toBeCompact = true
+            }
+
+            if (tagPieces[1].startsWith("raw", true)) {
+                toBeRaw = true
+            }
+
+            Triple(tagPieces[2], toBeCompact, toBeRaw)
         }
 
         val (account, cachedCurrency) = getAccountAndCurrency(player, currency) ?: return "Unknown Currency"
         val balance = account.getBalanceForCurrency(cachedCurrency)
 
-        return when (type) {
-            "normal" -> cachedCurrency.format(balance)
-            else -> cachedCurrency.format(balance, true)
-        }
+        return cachedCurrency.format(balance, compact = compact, raw = raw)
     }
 
     /**
      * Handles:
      * - baltop-position-<number>-<currency>
-     * - baltop-formatted-position-<number>-<currency>
+     * - baltop-compact-position-<number>-<currency>
      * - baltop-player-<number>-<currency>
      */
     private fun parseBalTopTag(tagPieces: List<String>): String? {

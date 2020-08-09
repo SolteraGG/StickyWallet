@@ -13,11 +13,11 @@ plugins {
     id("com.github.johnrengelman.shadow") version "5.2.0"
 
     id("eclipse")
-    // id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
+    id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
 }
 
 group = "com.dumbdogdiner"
-version = "2.1.9"
+version = "2.1.10"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_12
