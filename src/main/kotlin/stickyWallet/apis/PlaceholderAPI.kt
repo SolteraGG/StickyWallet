@@ -55,15 +55,15 @@ class PlaceholderAPI : PlaceholderExpansion(), UsePlugin {
             var toBeCompact = false
             var toBeRaw = false
 
-            if (tagPieces[1].endsWith("compact", true)) {
+            if (tagPieces[0].endsWith("compact", true)) {
                 toBeCompact = true
             }
 
-            if (tagPieces[1].startsWith("raw", true)) {
+            if (tagPieces[0].startsWith("raw", true)) {
                 toBeRaw = true
             }
 
-            Triple(tagPieces[2], toBeCompact, toBeRaw)
+            Triple(tagPieces[1], toBeCompact, toBeRaw)
         }
 
         val (account, cachedCurrency) = getAccountAndCurrency(player, currency) ?: return "Unknown Currency"
@@ -87,7 +87,6 @@ class PlaceholderAPI : PlaceholderExpansion(), UsePlugin {
         } else {
             Triple(tagPieces[1] + "_compact", tagPieces[2].toLong(), tagPieces[3])
         }
-    }
 
         val currency = pluginInstance.currencyStore.getCurrency(currencyKey) ?: return "Unknown Currency"
 
