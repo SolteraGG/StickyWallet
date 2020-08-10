@@ -50,7 +50,7 @@ class PlaceholderAPI : PlaceholderExpansion(), UsePlugin {
      */
     private fun parseBalanceTag(player: Player, tagPieces: List<String>): String? {
         val (currency, compact, raw) = if (tagPieces.size == 1) {
-            Triple(tagPieces[0], second = false, third = true)
+            Triple(tagPieces[0], second = false, third = false)
         } else {
             var toBeCompact = false
             var toBeRaw = false
