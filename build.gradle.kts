@@ -16,7 +16,7 @@ plugins {
 }
 
 group = "com.dumbdogdiner"
-version = "2.1.13"
+version = "2.1.14"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_12

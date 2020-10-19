@@ -25,7 +25,7 @@ object CheckManager : UsePlugin {
         meta.setDisplayName(StringUtilities.colorize(CheckSettings.name))
 
         item.itemMeta = meta
-        item.addUnsafeEnchantment(Enchantment.DURABILITY, 0)
+        item.addUnsafeEnchantment(Enchantment.VANISHING_CURSE, 1)
         item.addItemFlags(ItemFlag.HIDE_ENCHANTS)
 
         this.checkBaseItem = item
@@ -107,16 +107,16 @@ object CheckManager : UsePlugin {
             """
            ---------------------------------------------
                       StickyWallet Check Debug
-                      
+
             Item String         : $item
-            
+
             Material Matches    : $itemMaterialMatch
             Check Value         : $checkValue
             Check Issuer        : $checkIssuer
             Check Currency      : $checkCurrency
             Currency Exists     : $currencyExists
             Available Currencies: ${StickyWallet.instance.currencyStore.currencies.joinToString { it.plural }}
-           ---------------------------------------------            
+           ---------------------------------------------
             """.trimIndent()
         )
     }
