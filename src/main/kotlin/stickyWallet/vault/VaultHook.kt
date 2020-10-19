@@ -1,12 +1,12 @@
 package stickyWallet.vault
 
-import java.math.BigDecimal
-import java.util.UUID
-import kotlin.properties.Delegates
 import net.milkbowl.vault.economy.AbstractEconomy
 import net.milkbowl.vault.economy.EconomyResponse
 import org.bukkit.OfflinePlayer
 import stickyWallet.interfaces.UsePlugin
+import java.math.BigDecimal
+import java.util.UUID
+import kotlin.properties.Delegates
 
 class VaultHook : AbstractEconomy(), UsePlugin {
     override fun getBanks(): MutableList<String> = ArrayList()

@@ -1,7 +1,5 @@
 package stickyWallet.sql
 
-import java.math.BigDecimal
-import java.util.UUID
 import org.bukkit.ChatColor
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
@@ -24,6 +22,8 @@ import stickyWallet.interfaces.UsePlugin
 import stickyWallet.sql.tables.AccountsTable
 import stickyWallet.sql.tables.BalancesTable
 import stickyWallet.sql.tables.CurrenciesTable
+import java.math.BigDecimal
+import java.util.UUID
 
 object PostgresHandler : UsePlugin, DataHandler("postgres") {
     private lateinit var dbConnection: Database
@@ -164,7 +164,7 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
                 val balRows = transaction {
                     BalancesTable.select {
                         (BalancesTable.accountID eq it.uuid.toString()) and
-                        (BalancesTable.currencyID inList pluginInstance.currencyStore.currencies.map { curr -> curr.uuid.toString() })
+                            (BalancesTable.currencyID inList pluginInstance.currencyStore.currencies.map { curr -> curr.uuid.toString() })
                     }
                         .map {
                             pluginInstance.currencyStore.getCurrency(UUID.fromString(it[BalancesTable.currencyID])) to it[BalancesTable.balance]

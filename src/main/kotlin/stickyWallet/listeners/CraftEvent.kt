@@ -1,6 +1,5 @@
 package stickyWallet.listeners
 
-import kotlin.random.Random
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -12,6 +11,7 @@ import stickyWallet.configs.L
 import stickyWallet.configs.PluginConfiguration
 import stickyWallet.interfaces.UsePlugin
 import stickyWallet.utils.StringUtilities.colorize
+import kotlin.random.Random
 
 class CraftEvent : UsePlugin, Listener {
     @EventHandler(priority = EventPriority.HIGHEST)

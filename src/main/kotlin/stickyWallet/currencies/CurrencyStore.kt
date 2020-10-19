@@ -1,7 +1,7 @@
 package stickyWallet.currencies
 
-import java.util.UUID
 import stickyWallet.interfaces.UsePlugin
+import java.util.UUID
 
 object CurrencyStore : UsePlugin {
     val currencies = mutableListOf<Currency>()

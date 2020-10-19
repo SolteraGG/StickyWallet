@@ -1,7 +1,5 @@
 package stickyWallet.apis
 
-import java.math.BigDecimal
-import java.util.UUID
 import me.clip.placeholderapi.expansion.PlaceholderExpansion
 import org.bukkit.entity.Player
 import org.jetbrains.exposed.sql.SortOrder
@@ -11,6 +9,8 @@ import stickyWallet.accounts.Account
 import stickyWallet.currencies.Currency
 import stickyWallet.interfaces.UsePlugin
 import stickyWallet.sql.tables.BalancesTable
+import java.math.BigDecimal
+import java.util.UUID
 
 class PlaceholderAPI : PlaceholderExpansion(), UsePlugin {
 

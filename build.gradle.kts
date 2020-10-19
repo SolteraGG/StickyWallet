@@ -1,4 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
 import kr.entree.spigradle.data.Load
 import kr.entree.spigradle.kotlin.codemc
 import kr.entree.spigradle.kotlin.jitpack
@@ -9,15 +8,15 @@ plugins {
     id("java")
     kotlin("jvm") version "1.3.72"
 
-    id("kr.entree.spigradle") version "2.0.0"
+    id("kr.entree.spigradle") version "2.2.3"
     id("com.github.johnrengelman.shadow") version "5.2.0"
 
     id("eclipse")
-    id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
+    id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
 }
 
 group = "com.dumbdogdiner"
-version = "2.1.12"
+version = "2.1.13"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_12
@@ -40,14 +39,14 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
 
-    compileOnly(paper("1.16.1"))
+    compileOnly(paper("1.16.2"))
     compileOnly(vault())
-    compileOnly("me.clip:placeholderapi:2.10.6")
+    compileOnly("me.clip:placeholderapi:2.10.9")
 
     implementation("org.jetbrains.exposed", "exposed-core", "0.26.1")
     implementation("org.jetbrains.exposed", "exposed-jdbc", "0.26.1")
     implementation("pw.forst", "exposed-upsert", "1.0")
-    implementation("org.postgresql", "postgresql", "42.2.2")
+    implementation("org.postgresql", "postgresql", "42.2.18")
 }
 
 tasks {
@@ -62,15 +61,7 @@ tasks {
         dependsOn("shadowJar")
     }
 
-    task<ConfigureShadowRelocation>("relocateShadowJar") {
-        target = shadowJar.get()
-        prefix = project.name
-    }
-
     shadowJar {
-        // This is causing loads of problems for some reason.
-        // dependsOn("relocateShadowJar")
-
         archiveClassifier.set("")
 
         project.configurations.implementation.configure { isCanBeResolved = true }

@@ -37,7 +37,8 @@ object L {
     object Currency {
         fun sendUsage(sender: CommandSender) {
             sender.sendMessage(
-                colorize("""
+                colorize(
+                    """
                     $prefix&e&lCurrency Help
                     &2&l>> &a/currency create <singular> <plural> <type> &8- &7Create a currency.
                     &2&l>> &a/currency delete <plural> &8- &7Delete a currency.
@@ -51,7 +52,8 @@ object L {
                     &2&l>> &a/currency default <plural> &8- &7Set a currency as default.
                     &2&l>> &a/currency startbal <plural> <amount> &8- &7Set the starting balance for a currency.
                     &2&l>> &a/currency setrate <plural> <amount> &8- &7Sets the currency's exchange rate.
-                """.trimIndent())
+                    """.trimIndent()
+                )
             )
         }
 
@@ -79,12 +81,14 @@ object L {
     object Economy {
         fun sendUsage(sender: CommandSender) {
             sender.sendMessage(
-                colorize("""
+                colorize(
+                    """
                     $prefix&e&lEconomy Help
                     &2&l>> &a/eco give <user> <amount> [currency] &8- &7Give a player an amount of a currency.
                     &2&l>> &a/eco take <user> <amount> [currency] &8- &7Take an amount of a currency from a player.
                     &2&l>> &a/eco set <user> <amount> [currency] &8- &7Set a players amount of a currency.
-                """.trimIndent())
+                    """.trimIndent()
+                )
             )
         }
 
@@ -138,7 +142,8 @@ object L {
 
         fun sendUsage(sender: CommandSender) {
             sender.sendMessage(
-                colorize("""
+                colorize(
+                    """
                     $prefix&e&lCheck Help
                     &2&l>> &a/check write <amount> [currency] ${
                     if (sender !is Player) {
@@ -146,9 +151,10 @@ object L {
                     } else {
                         ""
                     }
-                } &8- &7Write a check with a specified amount and currency.
+                    } &8- &7Write a check with a specified amount and currency.
                     &2&l>> &a/check redeem &8- &7Redeem the check.
-                """.trimIndent())
+                    """.trimIndent()
+                )
             )
         }
     }

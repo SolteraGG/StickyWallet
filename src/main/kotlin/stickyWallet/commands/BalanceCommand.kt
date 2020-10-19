@@ -1,6 +1,5 @@
 package stickyWallet.commands
 
-import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
@@ -10,6 +9,7 @@ import stickyWallet.accounts.Account
 import stickyWallet.configs.L
 import stickyWallet.interfaces.UsePlugin
 import stickyWallet.utils.Permissions
+import stickyWallet.utils.Utilities
 
 class BalanceCommand : TabExecutor, UsePlugin {
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
@@ -73,9 +73,7 @@ class BalanceCommand : TabExecutor, UsePlugin {
     ): MutableList<String> {
         // Possible accounts
         if (args.size == 1)
-            return Bukkit.getOnlinePlayers().map {
-                it.name
-            }.filter {
+            return Utilities.getPlayerNames().filter {
                 it.startsWith(args[0], true)
             }.toMutableList()
 

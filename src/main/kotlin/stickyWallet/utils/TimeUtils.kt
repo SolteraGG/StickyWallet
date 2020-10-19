@@ -31,11 +31,13 @@ object TimeUtils {
         val zone = TimeZone.getTimeZone("Europe/London")
         val date = Date()
 
-        val sdf = SimpleDateFormat(if (seconds) {
-            "HH:mm:ss"
-        } else {
-            "HH:mm"
-        })
+        val sdf = SimpleDateFormat(
+            if (seconds) {
+                "HH:mm:ss"
+            } else {
+                "HH:mm"
+            }
+        )
         sdf.timeZone = zone
         return sdf.format(date)
     }

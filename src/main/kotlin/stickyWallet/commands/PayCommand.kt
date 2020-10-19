@@ -1,6 +1,5 @@
 package stickyWallet.commands
 
-import java.math.BigDecimal
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.command.Command
@@ -13,6 +12,8 @@ import stickyWallet.currencies.Currency
 import stickyWallet.events.PayEvent
 import stickyWallet.interfaces.UsePlugin
 import stickyWallet.utils.Permissions
+import stickyWallet.utils.Utilities
+import java.math.BigDecimal
 
 class PayCommand : TabExecutor, UsePlugin {
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
@@ -113,7 +114,7 @@ class PayCommand : TabExecutor, UsePlugin {
                 New Balances:
                   ${playerAccount.displayName} -> ${currency.format(accountBal)}
                   ${receiverAccount.displayName} -> ${currency.format(receiverBal)}
-            """.trimIndent()
+                """.trimIndent()
             )
 
             Bukkit.getPlayer(receiverAccount.uuid)?.sendMessage(
@@ -141,9 +142,7 @@ class PayCommand : TabExecutor, UsePlugin {
     ): MutableList<String> {
         // Account
         if (args.size == 1)
-            return Bukkit.getOnlinePlayers().map {
-                it.name
-            }.filter {
+            return Utilities.getPlayerNames().filter {
                 it.startsWith(args[0], true)
             }.toMutableList()
 

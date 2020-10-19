@@ -9,7 +9,8 @@ object PluginConfiguration : UsePlugin {
         val config = pluginInstance.config
 
         // Set up the config header
-        config.options().header("""
+        config.options().header(
+            """
             ${pluginInstance.description.name} v${pluginInstance.description.version}
             
             The main configuration file for ${pluginInstance.description.name}
@@ -40,9 +41,10 @@ object PluginConfiguration : UsePlugin {
             integrations:
               - vault: If VaultAPI support should be enabled; default: true
               
-        """.trimIndent())
+            """.trimIndent()
+        )
 
-    //    START: Storage
+        //    START: Storage
         addDefault(SettingsPaths.StorageDatabase, "stickywallet")
         addDefault(SettingsPaths.StorageTablePrefix, "stickywallet")
         addDefault(SettingsPaths.StorageHost, "localhost")
@@ -50,9 +52,9 @@ object PluginConfiguration : UsePlugin {
         addDefault(SettingsPaths.StorageUsername, "postgres")
         addDefault(SettingsPaths.StoragePassword, "password")
         addDefault(SettingsPaths.StorageCurrencyTypes, listOf("global"))
-    //    END: Storage
+        //    END: Storage
 
-    //    START: Check
+        //    START: Check
         addDefault(SettingsPaths.CheckMaterial, Material.PAPER.toString())
         addDefault(SettingsPaths.CheckName, "&aBank Note")
         addDefault(SettingsPaths.CheckLore, listOf("&7Worth: {currencycolor}{value}.", "&7&oWritten by &6{player}"))
@@ -65,20 +67,20 @@ object PluginConfiguration : UsePlugin {
             SettingsPaths.CheckNoCrafting,
             "&o&6Seems like some of your checks might have magically &4dissappeared&6 after your attempt at crafting items with them..."
         )
-    //    END: Check
+        //    END: Check
 
-    //    START: Debug
+        //    START: Debug
         addDefault(SettingsPaths.DebugLogs, false)
         addDefault(SettingsPaths.DebugTransactions, false)
-    //    END: Debug
+        //    END: Debug
 
-    //    START: Integrations
+        //    START: Integrations
         addDefault(SettingsPaths.VaultIntegration, true)
-    //    END: Integrations
+        //    END: Integrations
 
-    //    START: Translations...
+        //    START: Translations...
 
-    //    END: Translations...phew
+        //    END: Translations...phew
 
         config.options().copyDefaults(true)
         pluginInstance.saveConfig()

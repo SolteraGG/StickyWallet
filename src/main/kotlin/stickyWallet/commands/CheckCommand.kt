@@ -1,6 +1,5 @@
 package stickyWallet.commands
 
-import java.math.BigDecimal
 import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
@@ -14,6 +13,7 @@ import stickyWallet.interfaces.UsePlugin
 import stickyWallet.utils.Permissions
 import stickyWallet.utils.StringUtilities
 import stickyWallet.utils.StringUtilities.colorize
+import java.math.BigDecimal
 
 class CheckCommand : TabExecutor, UsePlugin {
     private val possibleArguments = listOf("redeem", "write")
@@ -36,11 +36,7 @@ class CheckCommand : TabExecutor, UsePlugin {
                     return true
                 }
 
-                if (!args[0].equals("redeem", true)) {
-                    sender.sendMessage(L.unknownSubCommand)
-                    return true
-                }
-
+                // Get check item
                 val itemInHand = sender.inventory.itemInMainHand
                 val itemInOffhand = sender.inventory.itemInOffHand
 
@@ -55,14 +51,17 @@ class CheckCommand : TabExecutor, UsePlugin {
                     itemInOffhand
                 }
 
-                val finalItem: CheckManager.CheckData? = when {
-                    itemInHand.type == CheckSettings.material -> CheckManager.validateCheck(itemInHand)
-                        ?: if (itemInOffhand.type == CheckSettings.material) {
-                            val valid2 = CheckManager.validateCheck(itemInOffhand)
-                            valid2
-                        } else null
-                    itemInOffhand.type == CheckSettings.material -> CheckManager.validateCheck(itemInOffhand)
-                    else -> null
+                val finalItem = CheckManager.validateCheck(finalBukkitItem)
+
+                if (args[0].equals("debug", true)) {
+                    CheckManager.logDebugCheck(finalBukkitItem)
+                    sender.sendActionBar("Check the console for the debug information for the check item")
+                    return true
+                }
+
+                if (!args[0].equals("redeem", true)) {
+                    sender.sendMessage(L.unknownSubCommand)
+                    return true
                 }
 
                 if (finalItem == null) {
@@ -114,11 +113,13 @@ class CheckCommand : TabExecutor, UsePlugin {
                 }
 
                 if (currency == null) {
-                    sender.sendMessage(if (noDefault) {
-                        L.noDefaultCurrency
-                    } else {
-                        L.unknownCurrency
-                    })
+                    sender.sendMessage(
+                        if (noDefault) {
+                            L.noDefaultCurrency
+                        } else {
+                            L.unknownCurrency
+                        }
+                    )
                     return true
                 }
 
@@ -153,11 +154,15 @@ class CheckCommand : TabExecutor, UsePlugin {
                 }
 
                 if (user.hasEnough(amount)) {
-                    val item = CheckManager.write(if (sender is Player) {
-                        sender.name
-                    } else {
-                        "console"
-                    }, currency, amount)
+                    val item = CheckManager.write(
+                        if (sender is Player) {
+                            sender.name
+                        } else {
+                            "console"
+                        },
+                        currency,
+                        amount
+                    )
                     user.withdraw(currency, amount)
 
                     if (sender !is Player) {
@@ -168,7 +173,7 @@ class CheckCommand : TabExecutor, UsePlugin {
                             return true
                         }
 
-                        player.sendActionBar(colorize("&4Hmm...you notice a mysterious item in your inventory.. What could it be?"))
+                        player.sendActionBar(colorize("&4Hmm...you notice a mysterious item appear in your inventory.. What could it be?"))
                         if (player.inventory.addItem(item).isNotEmpty()) {
                             player.world.dropItemNaturally(player.location, item)
                         }

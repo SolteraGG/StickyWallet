@@ -1,9 +1,9 @@
 package stickyWallet.sql.tables
 
-import java.math.BigDecimal
 import org.jetbrains.exposed.sql.Table
 import stickyWallet.configs.PluginConfiguration
 import stickyWallet.sql.PostgresDecimal
+import java.math.BigDecimal
 
 object BalancesTable : Table(
     PluginConfiguration.StorageSettings.storageTablePrefix + "_balances"

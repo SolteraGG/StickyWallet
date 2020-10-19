@@ -1,7 +1,5 @@
 package stickyWallet.commands
 
-import java.math.BigDecimal
-import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
@@ -11,6 +9,8 @@ import stickyWallet.configs.L
 import stickyWallet.currencies.Currency
 import stickyWallet.interfaces.UsePlugin
 import stickyWallet.utils.Permissions
+import stickyWallet.utils.Utilities
+import java.math.BigDecimal
 
 class EconomyCommand : TabExecutor, UsePlugin {
     private val subCommands = listOf(
@@ -90,11 +90,12 @@ class EconomyCommand : TabExecutor, UsePlugin {
 
             val returnMessage = when (subCommand) {
                 "add", "give" -> L.Economy.addResult
-                "remove", "take" -> if (account.hasEnough(currency, amount)) {
-                    L.Economy.takeResult
-                } else {
-                    L.targetInsufficientFunds
-                }
+                "remove", "take" ->
+                    if (account.hasEnough(currency, amount)) {
+                        L.Economy.takeResult
+                    } else {
+                        L.targetInsufficientFunds
+                    }
                 else -> L.Economy.setResult
             }
                 .replace("{player}", account.displayName)
@@ -135,9 +136,7 @@ class EconomyCommand : TabExecutor, UsePlugin {
 
         // Account
         if (args.size == 2)
-            return Bukkit.getOnlinePlayers().map {
-                it.name
-            }.filter {
+            return Utilities.getPlayerNames().filter {
                 it.startsWith(args[1], true)
             }.toMutableList()
 

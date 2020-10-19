@@ -1,15 +1,16 @@
 package stickyWallet.check
 
-import java.math.BigDecimal
 import org.bukkit.NamespacedKey
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
+import stickyWallet.StickyWallet
 import stickyWallet.configs.PluginConfiguration.CheckSettings
 import stickyWallet.currencies.Currency
 import stickyWallet.interfaces.UsePlugin
 import stickyWallet.utils.StringUtilities
+import java.math.BigDecimal
 
 object CheckManager : UsePlugin {
     private val checkBaseItem: ItemStack
@@ -24,7 +25,7 @@ object CheckManager : UsePlugin {
         meta.setDisplayName(StringUtilities.colorize(CheckSettings.name))
 
         item.itemMeta = meta
-        item.addUnsafeEnchantment(Enchantment.VANISHING_CURSE, 0)
+        item.addUnsafeEnchantment(Enchantment.DURABILITY, 0)
         item.addItemFlags(ItemFlag.HIDE_ENCHANTS)
 
         this.checkBaseItem = item
@@ -75,7 +76,6 @@ object CheckManager : UsePlugin {
         if (item.type != CheckSettings.material) return null
 
         val meta = item.itemMeta
-
         val dataStore = meta.persistentDataContainer
 
         val checkValue = dataStore.get(checkValueKey, PersistentDataType.STRING)?.toBigDecimal()
@@ -90,6 +90,34 @@ object CheckManager : UsePlugin {
             checkValue,
             checkCurrency,
             checkIssuer
+        )
+    }
+
+    fun logDebugCheck(item: ItemStack) {
+        val meta = item.itemMeta
+        val dataStore = meta.persistentDataContainer
+
+        val checkValue = dataStore.get(checkValueKey, PersistentDataType.STRING)?.toBigDecimal()
+        val checkIssuer = dataStore.get(checkIssuerKey, PersistentDataType.STRING)
+        val checkCurrency = dataStore.get(checkCurrencyKey, PersistentDataType.STRING)
+        val currencyExists = checkCurrency?.let { pluginInstance.currencyStore.currencyExists(it) }
+        val itemMaterialMatch = item.type === CheckSettings.material
+
+        println(
+            """
+           ---------------------------------------------
+                      StickyWallet Check Debug
+                      
+            Item String         : $item
+            
+            Material Matches    : $itemMaterialMatch
+            Check Value         : $checkValue
+            Check Issuer        : $checkIssuer
+            Check Currency      : $checkCurrency
+            Currency Exists     : $currencyExists
+            Available Currencies: ${StickyWallet.instance.currencyStore.currencies.joinToString { it.plural }}
+           ---------------------------------------------            
+            """.trimIndent()
         )
     }
 

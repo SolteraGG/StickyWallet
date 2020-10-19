@@ -1,7 +1,5 @@
 package stickyWallet.accounts
 
-import java.math.BigDecimal
-import java.util.UUID
 import org.bukkit.Bukkit
 import stickyWallet.StickyWallet
 import stickyWallet.configs.PluginConfiguration
@@ -10,6 +8,8 @@ import stickyWallet.events.ConversionEvent
 import stickyWallet.events.TransactionEvent
 import stickyWallet.interfaces.UsePlugin
 import stickyWallet.utils.TransactionType
+import java.math.BigDecimal
+import java.util.UUID
 
 open class Account(
     val uuid: UUID,
@@ -61,11 +61,13 @@ open class Account(
         val finalAmount = getBalanceForCurrency(currency) - amount
         modifyCurrencyBalance(currency, finalAmount, save = true)
 
-        pluginInstance.economyLogger.info("""
+        pluginInstance.economyLogger.info(
+            """
             [WITHDRAW] Account: $displayName
               Withdrawn: ${currency.format(amount)}
               Total: ${currency.format(finalAmount)}
-        """.trimIndent())
+            """.trimIndent()
+        )
         return true
     }
 
@@ -85,11 +87,13 @@ open class Account(
 
         val finalAmount = getBalanceForCurrency(currency) + amount
         modifyCurrencyBalance(currency, finalAmount, save = true)
-        pluginInstance.economyLogger.info("""
+        pluginInstance.economyLogger.info(
+            """
             [DEPOSIT] Account: $displayName
               Deposited: ${currency.format(amount)}
               Total: ${currency.format(finalAmount)}       
-        """.trimIndent())
+            """.trimIndent()
+        )
         return true
     }
 
@@ -108,10 +112,12 @@ open class Account(
         if (event.isCancelled) return false
 
         modifyCurrencyBalance(currency, amount, save = true)
-        pluginInstance.economyLogger.info("""
+        pluginInstance.economyLogger.info(
+            """
             [BALANCE SET] Account: $displayName
               New Balance: ${currency.format(amount)}
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         return true
     }
@@ -131,10 +137,12 @@ open class Account(
             modifyCurrencyBalance(exchanged, removed, save = false)
             modifyCurrencyBalance(received, added, save = false)
             pluginInstance.dataHandler.saveAccount(this)
-            pluginInstance.economyLogger.info("""
+            pluginInstance.economyLogger.info(
+                """
                 [CONVERSION - Custom Amount] Account: $displayName
                 Converted ${exchanged.format(exchangeAmount)} to ${received.format(amount)}
-            """.trimIndent())
+                """.trimIndent()
+            )
             return true
         }
 
@@ -162,21 +170,25 @@ open class Account(
             return false
 
         if (PluginConfiguration.DebugSettings.logsEnabled) {
-            pluginInstance.logger.info("""
+            pluginInstance.logger.info(
+                """
                 Rate: $rate
                 Final Amount: $finalAmount
                 Removed amount: ${exchanged.format(removed)}
                 Added amount: ${received.format(added)}
-            """.trimIndent())
+                """.trimIndent()
+            )
         }
 
         modifyCurrencyBalance(exchanged, removed, false)
         modifyCurrencyBalance(received, added, false)
         pluginInstance.dataHandler.saveAccount(this)
-        pluginInstance.economyLogger.info("""
+        pluginInstance.economyLogger.info(
+            """
             [CONVERSION - Preset Rate] Account: $displayName
             Converted ${exchanged.format(exchangeAmount)} (rate: $rate) to ${received.format(amount)}
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         return true
     }

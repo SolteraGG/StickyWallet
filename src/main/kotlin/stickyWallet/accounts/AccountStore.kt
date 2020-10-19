@@ -1,8 +1,8 @@
 package stickyWallet.accounts
 
-import java.util.UUID
 import org.bukkit.entity.Player
 import stickyWallet.interfaces.UsePlugin
+import java.util.UUID
 
 object AccountStore : UsePlugin {
     val accounts = mutableListOf<Account>()

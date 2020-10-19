@@ -1,16 +1,16 @@
 package stickyWallet.bungee
 
 import com.google.common.io.ByteStreams
-import java.io.ByteArrayOutputStream
-import java.io.DataOutputStream
-import java.io.IOException
-import java.util.UUID
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.plugin.messaging.PluginMessageListener
 import stickyWallet.StickyWallet
 import stickyWallet.configs.PluginConfiguration
 import stickyWallet.interfaces.UsePlugin
+import java.io.ByteArrayOutputStream
+import java.io.DataOutputStream
+import java.io.IOException
+import java.util.UUID
 
 object UpdateForwarder : PluginMessageListener, UsePlugin {
     private val channelName = "StickyWallet Data Channel"

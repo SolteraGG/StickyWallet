@@ -1,9 +1,9 @@
 package stickyWallet.currencies
 
-import java.math.BigDecimal
-import java.util.UUID
 import org.bukkit.ChatColor
 import stickyWallet.utils.NumberUtilities
+import java.math.BigDecimal
+import java.util.UUID
 
 data class Currency(
     var uuid: UUID,
@@ -34,11 +34,13 @@ data class Currency(
 
         if (!raw) {
             final.append(" ")
-                .append(if (amount == BigDecimal(1.0)) {
-                    this.singular.replace("_", " ")
-                } else {
-                    this.plural.replace("_", " ")
-                })
+                .append(
+                    if (amount == BigDecimal(1.0)) {
+                        this.singular.replace("_", " ")
+                    } else {
+                        this.plural.replace("_", " ")
+                    }
+                )
         }
 
         return final.toString()

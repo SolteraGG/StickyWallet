@@ -1,9 +1,9 @@
 package stickyWallet.interfaces
 
-import java.math.BigDecimal
-import java.util.UUID
 import stickyWallet.accounts.Account
 import stickyWallet.currencies.Currency
+import java.math.BigDecimal
+import java.util.UUID
 
 abstract class DataHandler(val name: String) : UsePlugin {
     abstract fun initialize(): Unit

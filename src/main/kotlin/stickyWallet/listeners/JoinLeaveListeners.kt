@@ -34,11 +34,13 @@ class JoinLeaveListeners : UsePlugin, Listener {
 
                 pluginInstance.dataHandler.saveAccount(account)
 
-                pluginInstance.logger.info("""
+                pluginInstance.logger.info(
+                    """
                     Name change found for player ${player.name} with UUID ${player.uniqueId}
                     Old: $old
                     New: ${player.name}
-                """.trimIndent())
+                    """.trimIndent()
+                )
             }
 
             pluginInstance.accountStore.addCachedAccount(account)
