@@ -16,7 +16,7 @@ plugins {
 }
 
 group = "com.dumbdogdiner"
-version = "2.1.14"
+version = "2.1.15"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_12
@@ -71,6 +71,8 @@ tasks {
             project.configurations.implementation.get(),
             project.configurations.shadow.get()
         )
+
+        minimize()
     }
 
     spigot {

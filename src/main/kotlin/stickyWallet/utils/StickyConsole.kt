@@ -15,6 +15,9 @@ object StickyConsole {
     fun error(error: Exception) = error(error.toString())
 
     fun logIfTransactionLogEnabled(message: String) {
-        if (PluginConfiguration.DebugSettings.transactionLogs) info(message)
+        if (PluginConfiguration.DebugSettings.transactionLogs) {
+            info(message)
+            EconomyLogger.info(message)
+        }
     }
 }
