@@ -72,7 +72,7 @@ class BalanceCommand : TabExecutor, UsePlugin {
         args: Array<out String>
     ): MutableList<String> {
         // Possible accounts
-        if (args.size == 1)
+        if (args.size == 1 && sender.hasPermission(Permissions.COMMAND_BALANCE_OTHER))
             return Utilities.getPlayerNames().filter {
                 it.startsWith(args[0], true)
             }.toMutableList()
