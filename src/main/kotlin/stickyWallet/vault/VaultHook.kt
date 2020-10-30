@@ -4,6 +4,7 @@ import net.milkbowl.vault.economy.AbstractEconomy
 import net.milkbowl.vault.economy.EconomyResponse
 import org.bukkit.OfflinePlayer
 import stickyWallet.interfaces.UsePlugin
+import stickyWallet.utils.NumberUtilities
 import java.math.BigDecimal
 import java.util.UUID
 import kotlin.properties.Delegates
@@ -187,17 +188,29 @@ class VaultHook : AbstractEconomy(), UsePlugin {
 
         val currency = pluginInstance.currencyStore.getDefaultCurrency()
 
+        val convertedAmount = BigDecimal(amount)
+
         if (currency != null && user != null) {
-            if (user.withdraw(currency, BigDecimal(amount))) {
+            if (user.withdraw(currency, convertedAmount)) {
                 type = EconomyResponse.ResponseType.SUCCESS
             } else {
-                error = "Could not withdraw $amount from $playerName because they don't have enough funds"
+                error =
+                    "Could not withdraw ${
+                    currency.format(
+                        convertedAmount,
+                        true
+                    )
+                    } from $playerName because they don't have enough funds"
             }
             balance = user.getBalanceForCurrency(currency)
         } else {
             balance = BigDecimal.ZERO
             error =
-                "Could not withdraw $amount from $playerName because either the account or currency couldn't be found"
+                "Could not withdraw ${
+                currency?.format(convertedAmount, true) ?: NumberUtilities.compactFormat(
+                    convertedAmount
+                )
+                } from $playerName because either the account or currency couldn't be found"
         }
 
         return EconomyResponse(amount, balance.toDouble(), type, error)
@@ -244,18 +257,28 @@ class VaultHook : AbstractEconomy(), UsePlugin {
         }
 
         val currency = pluginInstance.currencyStore.getDefaultCurrency()
+        val bigDecimalAmount = BigDecimal(amount)
 
         if (currency != null && user != null) {
-            if (user.deposit(currency, BigDecimal(amount))) {
+            if (user.deposit(currency, bigDecimalAmount)) {
                 type = EconomyResponse.ResponseType.SUCCESS
             } else {
-                error = "Could not deposit $amount to $playerName because they are not allowed to receive currencies."
+                error = "Could not deposit ${
+                currency.format(
+                    bigDecimalAmount,
+                    true
+                )
+                } to $playerName because they are not allowed to receive currencies."
             }
             balance = user.getBalanceForCurrency(currency)
         } else {
             balance = BigDecimal.ZERO
             error =
-                "Could not withdraw $amount to $playerName because either the account or currency couldn't be found."
+                "Could not withdraw ${
+                currency?.format(bigDecimalAmount, true) ?: NumberUtilities.compactFormat(
+                    bigDecimalAmount
+                )
+                } to $playerName because either the account or currency couldn't be found."
         }
 
         return EconomyResponse(amount, balance.toDouble(), type, error)

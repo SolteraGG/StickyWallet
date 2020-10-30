@@ -54,8 +54,7 @@ class CheckCommand : TabExecutor, UsePlugin {
                 val finalItem = CheckManager.validateCheck(finalBukkitItem)
 
                 if (args[0].equals("debug", true)) {
-                    CheckManager.logDebugCheck(finalBukkitItem)
-                    sender.sendActionBar("Check the console for the debug information for the check item")
+                    CheckManager.logDebugCheck(finalBukkitItem, sender)
                     return true
                 }
 

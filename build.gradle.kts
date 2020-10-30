@@ -16,7 +16,7 @@ plugins {
 }
 
 group = "com.dumbdogdiner"
-version = "2.1.15"
+version = "2.1.16"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_12
@@ -57,8 +57,12 @@ tasks {
         kotlinOptions.jvmTarget = "12"
     }
 
+    check {
+        dependsOn("ktlintFormat")
+    }
+
     build {
-        dependsOn("shadowJar")
+        dependsOn("ktlintFormat", "shadowJar")
     }
 
     shadowJar {
@@ -95,7 +99,8 @@ tasks {
             create("currency") {
                 aliases = listOf("gcurr", "gcurrency", "currencies")
                 description = "Manage the currencies."
-                usage = "/gcurrencies <backend|color|colorlist|convert|create|decimals|default|delete|list|payable|setrate|startbal|symbol|view>"
+                usage =
+                    "/gcurrencies <backend|color|colorlist|convert|create|decimals|default|delete|list|payable|setrate|startbal|symbol|view>"
             }
             create("economy") {
                 aliases = listOf("geconomy", "eco", "geco", "gemseconomy")

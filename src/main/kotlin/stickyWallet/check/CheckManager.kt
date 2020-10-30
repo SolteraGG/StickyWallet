@@ -2,6 +2,7 @@ package stickyWallet.check
 
 import org.bukkit.NamespacedKey
 import org.bukkit.enchantments.Enchantment
+import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
@@ -15,9 +16,9 @@ import java.math.BigDecimal
 object CheckManager : UsePlugin {
     private val checkBaseItem: ItemStack
 
-    val checkValueKey = NamespacedKey(pluginInstance, "stickywallet.check.value")
-    val checkIssuerKey = NamespacedKey(pluginInstance, "stickywallet.check.issuer")
-    val checkCurrencyKey = NamespacedKey(pluginInstance, "stickywallet.check.currency")
+    val kCheckValue = NamespacedKey(pluginInstance, "stickywallet.check.value")
+    val kCheckIssuer = NamespacedKey(pluginInstance, "stickywallet.check.issuer")
+    val kCheckCurrency = NamespacedKey(pluginInstance, "stickywallet.check.currency")
 
     init {
         val item = ItemStack(CheckSettings.material, 1)
@@ -61,9 +62,9 @@ object CheckManager : UsePlugin {
         meta.lore = formatLore
 
         val store = meta.persistentDataContainer
-        store.set(checkIssuerKey, PersistentDataType.STRING, finalCreatorName)
-        store.set(checkCurrencyKey, PersistentDataType.STRING, currency.plural)
-        store.set(checkValueKey, PersistentDataType.STRING, amount.toString())
+        store.set(kCheckIssuer, PersistentDataType.STRING, finalCreatorName)
+        store.set(kCheckCurrency, PersistentDataType.STRING, currency.plural)
+        store.set(kCheckValue, PersistentDataType.STRING, amount.toString())
 
         checkItem.itemMeta = meta
 
@@ -78,9 +79,9 @@ object CheckManager : UsePlugin {
         val meta = item.itemMeta
         val dataStore = meta.persistentDataContainer
 
-        val checkValue = dataStore.get(checkValueKey, PersistentDataType.STRING)?.toBigDecimal()
-        val checkIssuer = dataStore.get(checkIssuerKey, PersistentDataType.STRING)
-        val checkCurrency = dataStore.get(checkCurrencyKey, PersistentDataType.STRING)
+        val checkValue = dataStore.get(kCheckValue, PersistentDataType.STRING)?.toBigDecimal()
+        val checkIssuer = dataStore.get(kCheckIssuer, PersistentDataType.STRING)
+        val checkCurrency = dataStore.get(kCheckCurrency, PersistentDataType.STRING)
 
         if (checkValue == null || checkValue <= BigDecimal.ZERO) return null
         if (checkIssuer == null) return null
@@ -93,17 +94,17 @@ object CheckManager : UsePlugin {
         )
     }
 
-    fun logDebugCheck(item: ItemStack) {
+    fun logDebugCheck(item: ItemStack, player: Player) {
         val meta = item.itemMeta
         val dataStore = meta.persistentDataContainer
 
-        val checkValue = dataStore.get(checkValueKey, PersistentDataType.STRING)?.toBigDecimal()
-        val checkIssuer = dataStore.get(checkIssuerKey, PersistentDataType.STRING)
-        val checkCurrency = dataStore.get(checkCurrencyKey, PersistentDataType.STRING)
+        val checkValue = dataStore.get(kCheckValue, PersistentDataType.STRING)?.toBigDecimal()
+        val checkIssuer = dataStore.get(kCheckIssuer, PersistentDataType.STRING)
+        val checkCurrency = dataStore.get(kCheckCurrency, PersistentDataType.STRING)
         val currencyExists = checkCurrency?.let { pluginInstance.currencyStore.currencyExists(it) }
         val itemMaterialMatch = item.type === CheckSettings.material
 
-        println(
+        player.sendMessage(
             """
            ---------------------------------------------
                       StickyWallet Check Debug
