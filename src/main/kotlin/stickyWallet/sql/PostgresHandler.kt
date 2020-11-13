@@ -131,8 +131,10 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
     override fun updateCachedCurrency(currency: Currency) {
         try {
             val result = transaction {
-                CurrenciesTable.select { (CurrenciesTable.uuid eq currency.uuid.toString()) }.firstOrNull()?.let { rowToCurrency(it) }
-            } ?: throw IllegalStateException("Failed to find currency with UUID: ${currency.uuid}, yet we were expected to update cached")
+                CurrenciesTable.select { (CurrenciesTable.uuid eq currency.uuid.toString()) }.firstOrNull()
+                    ?.let { rowToCurrency(it) }
+            }
+                ?: throw IllegalStateException("Failed to find currency with UUID: ${currency.uuid}, yet we were expected to update cached")
 
             currency.apply {
                 symbol = result.symbol
@@ -156,9 +158,18 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
     private fun sharedLoadAccount(id: String): Account? {
         var account: Account? = null
 
+        // Extremely crude stripping of the two characters that MAY affect ilike queries
+        val accName = if (id.contains("%") || id.contains("_")) {
+            id.replace("%", "")
+                .replace("_", "")
+        } else {
+            id
+        }
+
         try {
             account = transaction {
-                AccountsTable.select { (AccountsTable.playerName eq id) or (AccountsTable.playerUUID eq id) }.firstOrNull()?.let { rowToAccount(it) }
+                AccountsTable.select { (AccountsTable.playerName ilike accName) or (AccountsTable.playerUUID eq id) }
+                    .firstOrNull()?.let { rowToAccount(it) }
             }
             account?.let {
                 val balRows = transaction {
