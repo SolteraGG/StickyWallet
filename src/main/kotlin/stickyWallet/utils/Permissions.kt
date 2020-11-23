@@ -15,4 +15,5 @@ object Permissions {
     const val COMMAND_ECONOMY_SET = "$COMMAND_ECONOMY.set"
 
     fun payCommandCurrency(name: String) = "$COMMAND_PAY.$name"
+    fun checkCommandCurrency(name: String) = "$COMMAND_CHECK.write.$name"
 }

@@ -12,11 +12,10 @@ plugins {
     id("com.github.johnrengelman.shadow") version "5.2.0"
 
     id("eclipse")
-    id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
 }
 
 group = "com.dumbdogdiner"
-version = "2.1.18"
+version = "2.2.0"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_12
@@ -57,12 +56,8 @@ tasks {
         kotlinOptions.jvmTarget = "12"
     }
 
-    check {
-        dependsOn("ktlintFormat")
-    }
-
     build {
-        dependsOn("ktlintFormat", "shadowJar")
+        dependsOn("shadowJar")
     }
 
     shadowJar {

@@ -16,7 +16,12 @@ import stickyWallet.utils.Utilities
 import java.math.BigDecimal
 
 class PayCommand : TabExecutor, UsePlugin {
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
+    override fun onCommand(
+        sender: CommandSender,
+        command: Command,
+        label: String,
+        args: Array<out String>
+    ): Boolean {
         StickyWallet.doAsync {
             if (sender !is Player) {
                 sender.sendMessage(L.noConsole)
@@ -54,8 +59,10 @@ class PayCommand : TabExecutor, UsePlugin {
             }
 
             if (
-                !sender.hasPermission(Permissions.payCommandCurrency(currency.singular)) ||
-                !sender.hasPermission(Permissions.payCommandCurrency(currency.plural))
+                !listOf(
+                        currency.singular,
+                        currency.plural
+                    ).any { sender.hasPermission(Permissions.payCommandCurrency(it.toLowerCase())) }
             ) {
                 sender.sendMessage(
                     L.Pay.noPerms

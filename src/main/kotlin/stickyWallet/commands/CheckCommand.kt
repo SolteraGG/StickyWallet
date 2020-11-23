@@ -18,7 +18,12 @@ import java.math.BigDecimal
 class CheckCommand : TabExecutor, UsePlugin {
     private val possibleArguments = listOf("redeem", "write")
 
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
+    override fun onCommand(
+        sender: CommandSender,
+        command: Command,
+        label: String,
+        args: Array<out String>
+    ): Boolean {
         if (!sender.hasPermission(Permissions.COMMAND_CHECK)) {
             sender.sendMessage(L.noPermissions)
             return true
@@ -118,6 +123,19 @@ class CheckCommand : TabExecutor, UsePlugin {
                         } else {
                             L.unknownCurrency
                         }
+                    )
+                    return true
+                }
+
+                if (!listOf(
+                        currency.singular,
+                        currency.plural
+                    ).any { sender.hasPermission(Permissions.checkCommandCurrency(it.toLowerCase())) }
+                ) {
+                    sender.sendMessage(
+                        L.Check.noPerms
+                            .replace("{currencycolor}", currency.color.toString())
+                            .replace("{currency}", currency.plural)
                     )
                     return true
                 }

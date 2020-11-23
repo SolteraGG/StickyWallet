@@ -61,11 +61,13 @@ object L {
 
         val view = colorize("$prefix&2&l>> &a/currency view <plural> &8- &7View information about a currency.")
 
-        val startBal = colorize("$prefix&2&l>> &a/currency startbal <plural> <amount> &8- &7Set the starting balance for a currency.")
+        val startBal =
+            colorize("$prefix&2&l>> &a/currency startbal <plural> <amount> &8- &7Set the starting balance for a currency.")
 
         val color = colorize("$prefix&2&l>> &a/currency color <plural> <color> &8- &7Select a color for a currency.")
 
-        val symbol = colorize("$prefix&2&l>> &a/currency symbol <plural> <char|remove> &8- &7Select a symbol for a currency or remove it.")
+        val symbol =
+            colorize("$prefix&2&l>> &a/currency symbol <plural> <char|remove> &8- &7Select a symbol for a currency or remove it.")
 
         val default = colorize("$prefix&2&l>> &a/currency default <plural> &8- &7Set a currency as default.")
 
@@ -73,9 +75,11 @@ object L {
 
         val delete = colorize("$prefix&2&l>> &a/currency delete <plural> &8- &7Delete a currency.")
 
-        val rate = colorize("$prefix&2&l>> &a/currency setrate <plural> <amount> &8- &7Sets the currency's exchange rate.")
+        val rate =
+            colorize("$prefix&2&l>> &a/currency setrate <plural> <amount> &8- &7Sets the currency's exchange rate.")
 
-        val exchangeRateSet = colorize("$prefix&7Set the exchange rate for {currencycolor}{currency} &7to &a{amount}&7.")
+        val exchangeRateSet =
+            colorize("$prefix&7Set the exchange rate for {currencycolor}{currency} &7to &a{amount}&7.")
     }
 
     object Economy {
@@ -92,11 +96,14 @@ object L {
             )
         }
 
-        val give = colorize("$prefix&2&l>> &a/eco give <user> <amount> [currency] &8- &7Give a player an amount of a currency.")
+        val give =
+            colorize("$prefix&2&l>> &a/eco give <user> <amount> [currency] &8- &7Give a player an amount of a currency.")
 
-        val take = colorize("$prefix&2&l>> &a/eco take <user> <amount> [currency] &8- &7Take an amount of a currency from a player.")
+        val take =
+            colorize("$prefix&2&l>> &a/eco take <user> <amount> [currency] &8- &7Take an amount of a currency from a player.")
 
-        val set = colorize("$prefix&2&l>> &a/eco set <user> <amount> [currency] &8- &7Set a players amount of a currency.")
+        val set =
+            colorize("$prefix&2&l>> &a/eco set <user> <amount> [currency] &8- &7Set a players amount of a currency.")
 
         val addResult = colorize("$prefix&7You gave &a{player}&7: {currencycolor}{amount}.")
 
@@ -116,7 +123,8 @@ object L {
     }
 
     object Pay {
-        val usage = colorize("$prefix&2&l>> &a/pay <user> <amount> [currency] &8- &7Pay the specified user the specified amount.")
+        val usage =
+            colorize("$prefix&2&l>> &a/pay <user> <amount> [currency] &8- &7Pay the specified user the specified amount.")
 
         val yourself = colorize("$prefix&7You can't pay yourself.")
 
@@ -139,6 +147,8 @@ object L {
         val invalid = colorize("$prefix&7You don't have a valid check in any of your hands...")
 
         val redeemed = colorize("$prefix&7Check has been cashed in.")
+
+        val noPerms = colorize("$prefix&7You don't have permission to write a check for {currencycolor}{currency}&7.")
 
         fun sendUsage(sender: CommandSender) {
             sender.sendMessage(
