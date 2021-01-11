@@ -1,3 +1,4 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
 import kr.entree.spigradle.data.Load
 import kr.entree.spigradle.kotlin.codemc
 import kr.entree.spigradle.kotlin.jitpack
@@ -6,16 +7,16 @@ import kr.entree.spigradle.kotlin.vault
 
 plugins {
     id("java")
-    kotlin("jvm") version "1.3.72"
+    kotlin("jvm") version "1.4.10"
 
     id("kr.entree.spigradle") version "2.2.3"
-    id("com.github.johnrengelman.shadow") version "5.2.0"
+    id("com.github.johnrengelman.shadow") version "6.1.0"
 
     id("eclipse")
 }
 
 group = "com.dumbdogdiner"
-version = "2.2.0"
+version = "2.2.1-alpha.5"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_12
@@ -36,16 +37,18 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
+    implementation(kotlin("script-runtime"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
 
     compileOnly(paper("1.16.2"))
     compileOnly(vault())
     compileOnly("me.clip:placeholderapi:2.10.9")
 
-    implementation("org.jetbrains.exposed", "exposed-core", "0.26.1")
-    implementation("org.jetbrains.exposed", "exposed-jdbc", "0.26.1")
+    implementation("org.jetbrains.exposed", "exposed-core", "0.28.1")
+    implementation("org.jetbrains.exposed", "exposed-jdbc", "0.28.1")
     implementation("pw.forst", "exposed-upsert", "1.0")
     implementation("org.postgresql", "postgresql", "42.2.18")
+    implementation("com.zaxxer", "HikariCP", "3.4.5")
 }
 
 tasks {
@@ -71,7 +74,14 @@ tasks {
             project.configurations.shadow.get()
         )
 
-        minimize()
+        dependsOn("relocateShadowJar")
+
+        // minimize()
+    }
+
+    task<ConfigureShadowRelocation>("relocateShadowJar") {
+        target = shadowJar.get()
+        prefix = "stickyWallet"
     }
 
     spigot {

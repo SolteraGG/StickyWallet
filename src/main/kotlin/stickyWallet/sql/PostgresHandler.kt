@@ -1,11 +1,16 @@
 package stickyWallet.sql
 
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import org.bukkit.ChatColor
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.DatabaseConnectionAutoRegistration
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.StdOutSqlLogger
+import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.or
@@ -23,18 +28,50 @@ import stickyWallet.sql.tables.AccountsTable
 import stickyWallet.sql.tables.BalancesTable
 import stickyWallet.sql.tables.CurrenciesTable
 import java.math.BigDecimal
+import java.util.ServiceLoader
 import java.util.UUID
 
 object PostgresHandler : UsePlugin, DataHandler("postgres") {
     private lateinit var dbConnection: Database
 
     override fun initialize() {
-        dbConnection = Database.connect(
-            "jdbc:postgresql://${StorageSettings.storageHost}:${StorageSettings.storagePort}/${StorageSettings.storageDatabase}",
-            driver = "org.postgresql.Driver",
-            user = StorageSettings.storageUsername,
+        val bukkitClassLoader = Database::class.java.classLoader
+        val bukkitServiceLoader = ServiceLoader.load(DatabaseConnectionAutoRegistration::class.java,bukkitClassLoader)
+        println("[Bukkit] ClassLoader: $bukkitClassLoader ServiceLoader: ${bukkitServiceLoader.toList()}")
+
+        val contextClassLoader = Thread.currentThread().contextClassLoader
+        val contextServiceLoader = ServiceLoader.load(DatabaseConnectionAutoRegistration::class.java,contextClassLoader)
+        println("[Context] ClassLoader: $contextClassLoader ServiceLoader: ${contextServiceLoader.toList()}")
+
+
+        val config = HikariConfig().apply {
+            jdbcUrl = "jdbc:postgresql://${StorageSettings.storageHost}:${StorageSettings.storagePort}/${StorageSettings.storageDatabase}"
+            driverClassName = "stickyWallet.org.postgresql.Driver"
+            username = StorageSettings.storageUsername
             password = StorageSettings.storagePassword
-        )
+            maximumPoolSize = 2
+        }
+
+        val dataSource = HikariDataSource(config)
+        //
+        // val conn = dataSource.connection
+        // val statement = conn.prepareStatement("""
+        //     select * from stickywallet_accounts
+        // """.trimIndent())
+        // val result = statement.executeQuery()
+        //
+        // val columns = result.metaData.columnCount
+        //
+        // while (result.next()) {
+        //     for (i in 1..columns) {
+        //         println(result.metaData.getColumnName(i) + ": " + result.getString(i))
+        //     }
+        //     println()
+        // }
+        //
+        // conn.close()
+
+        dbConnection = Database.connect(dataSource)
 
         transaction {
             SchemaUtils.createMissingTablesAndColumns(
@@ -45,7 +82,7 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
         }
     }
 
-    override fun getTopList(currency: Currency, offset: Long, amount: Int): Map<String, BigDecimal>? {
+    override fun getTopList(currency: Currency, offset: Long, amount: Int): Map<String, BigDecimal> {
         try {
             val pairs = transaction {
                 BalancesTable.join(
@@ -151,11 +188,19 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
         }
     }
 
-    override fun loadAccount(playerName: String): Account? = sharedLoadAccount(playerName)
+    override fun loadAccount(playerName: String): Account? {
+        pluginLogger.info("Called loadAccount with playerName: $playerName")
+        return sharedLoadAccount(playerName)
+    }
 
-    override fun loadAccount(uuid: UUID): Account? = sharedLoadAccount(uuid.toString())
+    override fun loadAccount(uuid: UUID): Account? {
+        pluginLogger.info("Called loadAccount with UUID $uuid")
+        return sharedLoadAccount(uuid.toString())
+    }
 
     private fun sharedLoadAccount(id: String): Account? {
+        pluginLogger.info("Called sharedLoadAccount with id: $id")
+
         var account: Account? = null
 
         // Extremely crude stripping of the two characters that MAY affect ilike queries
@@ -168,6 +213,7 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
 
         try {
             account = transaction {
+                addLogger(StdOutSqlLogger)
                 AccountsTable.select { (AccountsTable.playerName ilike accName) or (AccountsTable.playerUUID eq id) }
                     .firstOrNull()?.let { rowToAccount(it) }
             }
