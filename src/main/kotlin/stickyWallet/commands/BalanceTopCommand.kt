@@ -51,7 +51,7 @@ class BalanceTopCommand : TabExecutor, UsePlugin {
 
             val offset = 10 * (page - 1)
 
-            val topList = dataStore.getTopList(currency, offset, accountsPerPage)!!
+            val topList = dataStore.getTopList(currency, offset, accountsPerPage)
 
             sender.sendMessage(
                 L.BalTop.header

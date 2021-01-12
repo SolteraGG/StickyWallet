@@ -159,18 +159,16 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
     }
 
     override fun loadAccount(playerName: String): Account? {
-        pluginLogger.info("Called loadAccount with playerName: $playerName")
+        // pluginLogger.info("Called loadAccount with playerName: $playerName")
         return sharedLoadAccount(playerName)
     }
 
     override fun loadAccount(uuid: UUID): Account? {
-        pluginLogger.info("Called loadAccount with UUID $uuid")
+        // pluginLogger.info("Called loadAccount with UUID $uuid")
         return sharedLoadAccount(uuid.toString())
     }
 
     private fun sharedLoadAccount(id: String): Account? {
-        pluginLogger.info("Called sharedLoadAccount with id: $id")
-
         var account: Account? = null
 
         // Extremely crude stripping of the two characters that MAY affect ilike queries
