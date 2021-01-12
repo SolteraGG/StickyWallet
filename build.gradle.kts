@@ -74,7 +74,9 @@ tasks {
             project.configurations.shadow.get()
         )
 
-        dependsOn("relocateShadowJar")
+        relocate("org.postgresql", "stickyWallet.libs.postgresql")
+
+        // dependsOn("relocateShadowJar")
 
         // minimize()
     }

@@ -110,7 +110,7 @@ class PlaceholderAPI : PlaceholderExpansion(), UsePlugin {
     }
 
     private fun fetchUserAtPosition(currency: Currency, position: Long, compact: Boolean = false): Pair<String, String> {
-        val result = transaction {
+        val result = transaction(pluginInstance.dataHandler.dbConnection) {
             BalancesTable
                 .select { (BalancesTable.currencyID eq currency.uuid.toString()) }
                 .orderBy(BalancesTable.balance to SortOrder.DESC)

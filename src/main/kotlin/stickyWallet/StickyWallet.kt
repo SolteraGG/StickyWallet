@@ -29,7 +29,7 @@ class StickyWallet : JavaPlugin() {
 
     val accountStore = AccountStore
     val currencyStore = CurrencyStore
-    lateinit var dataHandler: DataHandler
+    lateinit var dataHandler: PostgresHandler
 
     var isDisabling = false
 

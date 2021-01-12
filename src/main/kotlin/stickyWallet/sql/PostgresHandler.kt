@@ -4,13 +4,10 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.bukkit.ChatColor
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.DatabaseConnectionAutoRegistration
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.StdOutSqlLogger
-import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.or
@@ -28,52 +25,25 @@ import stickyWallet.sql.tables.AccountsTable
 import stickyWallet.sql.tables.BalancesTable
 import stickyWallet.sql.tables.CurrenciesTable
 import java.math.BigDecimal
-import java.util.ServiceLoader
 import java.util.UUID
 
 object PostgresHandler : UsePlugin, DataHandler("postgres") {
-    private lateinit var dbConnection: Database
+    lateinit var dbConnection: Database
 
     override fun initialize() {
-        val bukkitClassLoader = Database::class.java.classLoader
-        val bukkitServiceLoader = ServiceLoader.load(DatabaseConnectionAutoRegistration::class.java,bukkitClassLoader)
-        println("[Bukkit] ClassLoader: $bukkitClassLoader ServiceLoader: ${bukkitServiceLoader.toList()}")
-
-        val contextClassLoader = Thread.currentThread().contextClassLoader
-        val contextServiceLoader = ServiceLoader.load(DatabaseConnectionAutoRegistration::class.java,contextClassLoader)
-        println("[Context] ClassLoader: $contextClassLoader ServiceLoader: ${contextServiceLoader.toList()}")
-
-
         val config = HikariConfig().apply {
             jdbcUrl = "jdbc:postgresql://${StorageSettings.storageHost}:${StorageSettings.storagePort}/${StorageSettings.storageDatabase}"
-            driverClassName = "stickyWallet.org.postgresql.Driver"
+            driverClassName = "stickyWallet.libs.postgresql.Driver"
             username = StorageSettings.storageUsername
             password = StorageSettings.storagePassword
             maximumPoolSize = 2
         }
 
         val dataSource = HikariDataSource(config)
-        //
-        // val conn = dataSource.connection
-        // val statement = conn.prepareStatement("""
-        //     select * from stickywallet_accounts
-        // """.trimIndent())
-        // val result = statement.executeQuery()
-        //
-        // val columns = result.metaData.columnCount
-        //
-        // while (result.next()) {
-        //     for (i in 1..columns) {
-        //         println(result.metaData.getColumnName(i) + ": " + result.getString(i))
-        //     }
-        //     println()
-        // }
-        //
-        // conn.close()
 
         dbConnection = Database.connect(dataSource)
 
-        transaction {
+        transaction(dbConnection) {
             SchemaUtils.createMissingTablesAndColumns(
                 AccountsTable,
                 BalancesTable,
@@ -84,7 +54,7 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
 
     override fun getTopList(currency: Currency, offset: Long, amount: Int): Map<String, BigDecimal> {
         try {
-            val pairs = transaction {
+            val pairs = transaction(dbConnection) {
                 BalancesTable.join(
                     AccountsTable,
                     JoinType.INNER,
@@ -111,7 +81,7 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
 
     override fun loadCurrencies() {
         try {
-            val loadedCurrencies = transaction {
+            val loadedCurrencies = transaction(dbConnection) {
                 CurrenciesTable.select { (CurrenciesTable.type inList StorageSettings.currencyTypes) }
                     .map { rowToCurrency(it) }
             }
@@ -133,7 +103,7 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
 
     override fun saveCurrency(currency: Currency) {
         try {
-            transaction {
+            transaction(dbConnection) {
                 CurrenciesTable.insertOrUpdate(CurrenciesTable.singular, CurrenciesTable.plural) {
                     it[uuid] = currency.uuid.toString()
                     it[type] = currency.type
@@ -156,7 +126,7 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
 
     override fun deleteCurrency(currency: Currency) {
         try {
-            transaction {
+            transaction(dbConnection) {
                 CurrenciesTable.deleteWhere { (CurrenciesTable.uuid eq currency.uuid.toString()) }
                 BalancesTable.deleteWhere { (BalancesTable.currencyID eq currency.uuid.toString()) }
             }
@@ -167,7 +137,7 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
 
     override fun updateCachedCurrency(currency: Currency) {
         try {
-            val result = transaction {
+            val result = transaction(dbConnection) {
                 CurrenciesTable.select { (CurrenciesTable.uuid eq currency.uuid.toString()) }.firstOrNull()
                     ?.let { rowToCurrency(it) }
             }
@@ -212,13 +182,12 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
         }
 
         try {
-            account = transaction {
-                addLogger(StdOutSqlLogger)
+            account = transaction(dbConnection) {
                 AccountsTable.select { (AccountsTable.playerName ilike accName) or (AccountsTable.playerUUID eq id) }
                     .firstOrNull()?.let { rowToAccount(it) }
             }
             account?.let {
-                val balRows = transaction {
+                val balRows = transaction(dbConnection) {
                     BalancesTable.select {
                         (BalancesTable.accountID eq it.uuid.toString()) and
                             (BalancesTable.currencyID inList pluginInstance.currencyStore.currencies.map { curr -> curr.uuid.toString() })
@@ -242,7 +211,7 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
 
     override fun saveAccount(account: Account) {
         try {
-            transaction {
+            transaction(dbConnection) {
                 AccountsTable.insertOrUpdate(AccountsTable.playerUUID) {
                     it[playerName] = account.playerName ?: "Unknown Player"
                     it[playerUUID] = account.uuid.toString()
@@ -268,7 +237,7 @@ object PostgresHandler : UsePlugin, DataHandler("postgres") {
 
     override fun deleteAccount(account: Account) {
         try {
-            transaction {
+            transaction(dbConnection) {
                 AccountsTable.deleteWhere { (AccountsTable.playerUUID eq account.uuid.toString()) }
                 BalancesTable.deleteWhere { (BalancesTable.accountID eq account.uuid.toString()) }
             }

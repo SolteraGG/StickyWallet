@@ -4,6 +4,7 @@ import org.bukkit.Bukkit
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import stickyWallet.StickyWallet
 import stickyWallet.sql.tables.AccountsTable
 
 object Utilities {
@@ -12,7 +13,7 @@ object Utilities {
 
         playerNames.addAll(Bukkit.getOnlinePlayers().map { it.name }.sorted())
 
-        val accountNames = transaction {
+        val accountNames = transaction(StickyWallet.instance.dataHandler.dbConnection) {
             AccountsTable
                 .slice(AccountsTable.playerName)
                 .selectAll()
